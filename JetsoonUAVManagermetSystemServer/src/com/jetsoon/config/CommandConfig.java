@@ -1,5 +1,11 @@
 package com.jetsoon.config;
-
+/**
+ * 
+* @ClassName: CommandConfig
+* @Description: TODO(定义客户端的命令)
+* @author nipengge
+* @date 2017-6-6 下午05:02:09
+*/
 public class CommandConfig {
 	
 	public static final String STAY_CONNECTED = "connect";//保持连接

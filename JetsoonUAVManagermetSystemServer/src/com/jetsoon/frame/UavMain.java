@@ -4,7 +4,6 @@ package com.jetsoon.frame;
 import javax.swing.JFrame;
 
 
-
 public class UavMain {
 	
 	public static void main(String[] args) {

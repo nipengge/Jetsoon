@@ -11,6 +11,8 @@ import java.util.*;
 import com.jetsoon.service.*;
 import com.jetsoon.service.impl.*;
 import com.jetsoon.util.DateJsonValueProcessor;
+import com.jetsoon.util.SectionPackUtil;
+
 import net.sf.json.*;
 
 
@@ -71,6 +73,8 @@ public class UAVSocketCilent extends Thread{
 	private static HashBiMap<String,Socket> socketMap = new HashBiMap<String,Socket>();//当前在线的用户集合
 
 	private static Map<Socket,Map<String,Object>> flight_history = new HashMap<Socket,Map<String,Object>>();
+	
+	private SectionPackUtil sectionPackUtil;
 
 
 	public  UAVSocketCilent(UAVSocketServer uavSocketServer,Socket socket){
@@ -102,170 +106,180 @@ public class UAVSocketCilent extends Thread{
 
 				if(l_aruBuf[0] == -2){
 					
-					//解决包重叠问题
-				
-					//飞行器反馈消息
-
-					Parser parser = new Parser();
-
-					for (int j = 0; j < len; j++) {
-
-						System.out.print(l_aruBuf[j]+" ");
-						if(len - 1 == j){
-							System.out.println("飞控返回数据");
-						}
-						MAVLinkPacket packet = parser.mavlink_parse_char(l_aruBuf[j] & 0x00ff);
-						
-						if(packet != null){
-
-							MAVLinkMessage message = 	packet.unpack();
-
-							System.out.println(message.sysid);
-
-							if(message.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST){
-								//接收到请求航点命令
-
-								msg_mission_request requestMsg = (msg_mission_request) message;
-
-								sendUAVMession(ListDataReference.getMission(socketMap.getKey(socket), requestMsg.seq));
-
-							}else if(message.msgid == msg_mission_ack.MAVLINK_MSG_ID_MISSION_ACK){
-								//接收到航点请求完毕命令
-								msg_mission_ack ack = (msg_mission_ack) message;
-
-								if(ack.type == 0){
-									//删除航点信息
-									ListDataReference.remove(socketMap.getKey(socket));
-
-									UavMainFrame.setMessage(socket+":飞机反馈航点请求完毕");
-									System.out.println(socket+":飞机反馈航点请求完毕");
-
-								}else{
-
-									System.out.println("错误");
-								}
-
-							}else if(message.msgid == msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT){//心跳
-
-								initflight();
-
-								msg_heartbeat heartbeat = (msg_heartbeat) message;
-
-								Map<String ,Object> history = flight_history.get(socket);
-
-								if(heartbeat.type == MAV_TYPE.MAV_TYPE_2G){ //检测是否是2G模发送过来的消息
-
-								}else{//正常飞控
-									history.put("droneType", heartbeat.type);
-									history.put("droneStatus", heartbeat.system_status);
-									history.put("systemMode", heartbeat.base_mode);
-									history.put("customMode", heartbeat.custom_mode);
-
-									flight_history.put(socket, history);
-									//inputHistory();
-								}
-
-								byte[] butff ={-2,0,0,0,0,0,0,0};
-
-								sendMessage2G(butff);
-
-							  String uavid = socketMap.getKey(socket);
-							 
-							  
-							  Socket socket =  socketMap.getValue(uavid);
-							  
-							  socket.setSoTimeout(10000);
-
-								if(flagMap.get(uavid) == null){
-
-									socket.setSoTimeout(10000);
-									socketMap.put(uavid, socket);
-
-									// setupStreamRates(null,(byte)1, (byte)1, 1, 1, 1, 1, 1, 1, 1, 1);//(2017.4.26修改)
-
-									flagMap.put(uavid, (byte) 1);
-								}
-
-
-							}else if(message.msgid == msg_sys_status.MAVLINK_MSG_ID_SYS_STATUS){
-
-								msg_sys_status status = (msg_sys_status) message;
-
-								initflight();
-
-								Map<String ,Object> history = flight_history.get(socket);
-								float voltage = status.voltage_battery;
-
-								history.put("voltage",voltage/1000);
-
-								flight_history.put(socket,history);
-								inputHistory();
-
-								UavMainFrame.setMessage("电压："+status.voltage_battery);
-							}else if(message.msgid == msg_gps_raw_int.MAVLINK_MSG_ID_GPS_RAW_INT){
-
-								msg_gps_raw_int gps_raw = (msg_gps_raw_int) message;
-								
-								initflight();
-
-								Map<String ,Object> history = flight_history.get(socket);
-								
-								if(gps_raw.fix_type == 2 || gps_raw.fix_type == 3){ //正确定位保存数据
-																								
-									double lat = gps_raw.lat;
-
-									double lon = gps_raw.lon;
-
-									float  alt = gps_raw.alt;
-									System.out.println(history);
-																									
-									if(gps_raw.time_usec == 1){					//检查是否是2G定位模块		
-										
-										history.put("voltage",0.0f);
-										history.put("speed",0.0f);
-
-										history.put("lat",lat/100000);
-										history.put("lon",lon/100000);
-										history.put("alt",alt/1000);
-										
-									}else{
-										history.put("lat",lat/10000000);
-										history.put("lon",lon/10000000);
-										history.put("alt",alt/1000);
-									}
-								}else{
-									history.put("lat",0);
-									history.put("lon",0);
-									history.put("alt",0);
-								}
-								
-								flight_history.put(socket,history);
-								inputHistory();
-																													
-								UavMainFrame.setMessage("经度:"+gps_raw.lat+",纬度:"+gps_raw.lon+",高度:"+gps_raw.alt+",地速"+gps_raw.vel);
-
-							}else if(message.msgid == msg_vfr_hud.MAVLINK_MSG_ID_VFR_HUD){
-
-								msg_vfr_hud vfr = (msg_vfr_hud) message;
-
-								initflight();
-
-								Map<String ,Object> history = flight_history.get(socket);
-
-								float speed = vfr.airspeed;
-
-								history.put("speed",speed/1000);
-
-								flight_history.put(socket,history);
-								inputHistory();
-								UavMainFrame.setMessage("航向:"+vfr.heading+",空速:"+vfr.airspeed+",地速"+vfr.groundspeed);
-							}
-
-							break;
-						}
-
+					if(sectionPackUtil == null ){
+						//初始化截包工具类
+						sectionPackUtil = new SectionPackUtil();
 					}
+					
+					//截取数据包
+					List<byte[]> packs = sectionPackUtil.packetInterception(l_aruBuf, len);
+					
+					for (byte[] pack : packs) {
+						
+						Parser parser = new Parser();
+						
+						for (int i = 0; i < pack.length; i++) {
+							
+							System.out.print(l_aruBuf[i]+" ");
+							
+							if(len - 1 == i){
+								System.out.println("飞控返回数据");
+							}
+							
+							MAVLinkPacket packet = parser.mavlink_parse_char(l_aruBuf[i] & 0x00ff);
+							
+							if(packet != null){
 
+								MAVLinkMessage message = 	packet.unpack();
+
+								System.out.println(message.sysid);
+
+								if(message.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST){
+									//接收到请求航点命令
+
+									msg_mission_request requestMsg = (msg_mission_request) message;
+
+									sendUAVMession(ListDataReference.getMission(socketMap.getKey(socket), requestMsg.seq));
+
+								}else if(message.msgid == msg_mission_ack.MAVLINK_MSG_ID_MISSION_ACK){
+									//接收到航点请求完毕命令
+									msg_mission_ack ack = (msg_mission_ack) message;
+
+									if(ack.type == 0){
+										//删除航点信息
+										ListDataReference.remove(socketMap.getKey(socket));
+
+										UavMainFrame.setMessage(socket+":飞机反馈航点请求完毕");
+										System.out.println(socket+":飞机反馈航点请求完毕");
+
+									}else{
+
+										System.out.println("错误");
+									}
+
+								}else if(message.msgid == msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT){//心跳
+
+									initflight();
+
+									msg_heartbeat heartbeat = (msg_heartbeat) message;
+
+									Map<String ,Object> history = flight_history.get(socket);
+
+									if(heartbeat.type == MAV_TYPE.MAV_TYPE_2G){ //检测是否是2G模发送过来的消息
+
+									}else{//正常飞控
+										history.put("droneType", heartbeat.type);
+										history.put("droneStatus", heartbeat.system_status);
+										history.put("systemMode", heartbeat.base_mode);
+										history.put("customMode", heartbeat.custom_mode);
+
+										flight_history.put(socket, history);
+										//inputHistory();
+									}
+
+									byte[] butff ={-2,0,0,0,0,0,0,0};
+
+									sendMessage2G(butff);
+
+								  String uavid = socketMap.getKey(socket);
+								 
+								  
+								  Socket socket =  socketMap.getValue(uavid);
+								  
+								  socket.setSoTimeout(10000);
+
+									if(flagMap.get(uavid) == null){
+
+										socket.setSoTimeout(10000);
+										socketMap.put(uavid, socket);
+
+										// setupStreamRates(null,(byte)1, (byte)1, 1, 1, 1, 1, 1, 1, 1, 1);//(2017.4.26修改)
+
+										flagMap.put(uavid, (byte) 1);
+									}
+
+
+								}else if(message.msgid == msg_sys_status.MAVLINK_MSG_ID_SYS_STATUS){
+
+									msg_sys_status status = (msg_sys_status) message;
+
+									initflight();
+
+									Map<String ,Object> history = flight_history.get(socket);
+									float voltage = status.voltage_battery;
+
+									history.put("voltage",voltage/1000);
+
+									flight_history.put(socket,history);
+									inputHistory();
+
+									UavMainFrame.setMessage("电压："+status.voltage_battery);
+								}else if(message.msgid == msg_gps_raw_int.MAVLINK_MSG_ID_GPS_RAW_INT){
+
+									msg_gps_raw_int gps_raw = (msg_gps_raw_int) message;
+									
+									initflight();
+
+									Map<String ,Object> history = flight_history.get(socket);
+									
+									if(gps_raw.fix_type == 2 || gps_raw.fix_type == 3){ //正确定位保存数据
+																									
+										double lat = gps_raw.lat;
+
+										double lon = gps_raw.lon;
+
+										float  alt = gps_raw.alt;
+										System.out.println(history);
+																										
+										if(gps_raw.time_usec == 1){					//检查是否是2G定位模块		
+											
+											history.put("voltage",0.0f);
+											history.put("speed",0.0f);
+
+											history.put("lat",lat/100000);
+											history.put("lon",lon/100000);
+											history.put("alt",alt/1000);
+											
+										}else{
+											history.put("lat",lat/10000000);
+											history.put("lon",lon/10000000);
+											history.put("alt",alt/1000);
+										}
+									}else{
+										history.put("lat",0);
+										history.put("lon",0);
+										history.put("alt",0);
+									}
+									
+									flight_history.put(socket,history);
+									inputHistory();
+																														
+									UavMainFrame.setMessage("经度:"+gps_raw.lat+",纬度:"+gps_raw.lon+",高度:"+gps_raw.alt+",地速"+gps_raw.vel);
+
+								}else if(message.msgid == msg_vfr_hud.MAVLINK_MSG_ID_VFR_HUD){
+
+									msg_vfr_hud vfr = (msg_vfr_hud) message;
+
+									initflight();
+
+									Map<String ,Object> history = flight_history.get(socket);
+
+									float speed = vfr.airspeed;
+
+									history.put("speed",speed/1000);
+
+									flight_history.put(socket,history);
+									inputHistory();
+									UavMainFrame.setMessage("航向:"+vfr.heading+",空速:"+vfr.airspeed+",地速"+vfr.groundspeed);
+								}
+
+								break;
+							}
+							
+						}
+						
+					}
+					
 				}else if(l_aruBuf[0] == 123 && l_aruBuf[len-1] == 125){//如果是符合JSON 的 {}
 
 					//客户端发来命令

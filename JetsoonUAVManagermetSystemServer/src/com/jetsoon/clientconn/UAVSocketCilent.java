@@ -120,13 +120,13 @@ public class UAVSocketCilent extends Thread{
 						
 						for (int i = 0; i < pack.length; i++) {
 							
-							System.out.print(l_aruBuf[i]+" ");
+							System.out.print(pack[i]+" ");
 							
 							if(len - 1 == i){
 								System.out.println("·É¿Ø·µ»ØÊý¾Ý");
 							}
 							
-							MAVLinkPacket packet = parser.mavlink_parse_char(l_aruBuf[i] & 0x00ff);
+							MAVLinkPacket packet = parser.mavlink_parse_char(pack[i] & 0x00ff);
 							
 							if(packet != null){
 

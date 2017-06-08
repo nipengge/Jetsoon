@@ -56,7 +56,7 @@ public class SectionPackUtil {
 			 * @ mavlinkCount != len  
 			 * @ i<7 i循环从2开始也就是最多循环5次  防止死循环 ，真正叠包最多见过3个包叠一起
 			 */
-			while(mavLinkCount != len && i<7 ){
+			while(mavLinkCount != len && i<52 ){
 				
 				mavlinkLen = pack[mavLinkCount+1]+8; //计算下一个包的长度
 				mavLinkCount += mavlinkLen;//累加每个包的长度就是下一包的截取位置

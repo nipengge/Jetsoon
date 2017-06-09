@@ -31,7 +31,7 @@ public class SectionPackUtil {
 	* @throws
 	 */
 	public  List<byte[]> packetInterception(byte pack[],int len){
-		
+	
 		int mavlinkLen = pack[1]+8;//默认第一个包长度,pack[1]是第一个包长度的位置加上 8位 固定数据 就是这个包的长度
 		
 		List<byte[]> packs = new ArrayList<byte[]>();//存储每个mavLink的包

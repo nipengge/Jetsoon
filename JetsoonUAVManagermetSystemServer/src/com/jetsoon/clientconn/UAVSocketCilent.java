@@ -107,7 +107,6 @@ public class UAVSocketCilent extends Thread{
 				if(l_aruBuf[0] == -2){
 					
 					if(sectionPackUtil == null ){
-						//初始化截包工具类
 						sectionPackUtil = new SectionPackUtil();
 					}
 					
@@ -558,7 +557,7 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid,"CMD:1");
 
-							}else if(code.equals("takeoff")){// 一键起飞
+							}else if(code.equals("takeoff1")){// 一键起飞
 
 								String uavid = jsonObject.getString("uavid");
 
@@ -646,6 +645,10 @@ public class UAVSocketCilent extends Thread{
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:99");
+							}else if(code.equals("takeoff")){
+								String uavid = jsonObject.getString("uavid");
+
+								sendMessage2G(uavid,"CMD:8");
 							}else if(code.equals("automatic")){//切换自动模式并解锁起飞
 
 								String uavid = jsonObject.getString("uavid");

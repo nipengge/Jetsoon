@@ -4,9 +4,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.BeanHandler;
 
-import com.jetsoon.bean.Enterprise_User;
 import com.jetsoon.dao.EnterpriseUserDao;
 import com.jetsoon.util.C3P0Util;
 import org.apache.commons.dbutils.handlers.MapHandler;

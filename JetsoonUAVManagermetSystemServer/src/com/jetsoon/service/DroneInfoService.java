@@ -34,6 +34,19 @@ public interface DroneInfoService {
      * 修改无人机在线状态
      * @param IMEI 唯一标示
      * @param onLine 在线状态
+     * @throws SQLException 
      */
-    void  updateUAVOnLineStatus(String IMEI,String onLine);
+    void  updateUAVOnLineStatus(String IMEI,int onLine) throws SQLException;
+    
+    /**
+     * 
+    * @Title: isDroneLock
+    * @Description: TODO(此无人机是否锁死)
+    * @param @param IMEI
+    * @param @return
+    * @param @throws SQLException    设定文件
+    * @return boolean    返回类型
+    * @throws
+     */
+    boolean  isDroneLock(String IMEI) throws SQLException;
 }

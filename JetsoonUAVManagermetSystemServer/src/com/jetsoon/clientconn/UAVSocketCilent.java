@@ -314,15 +314,16 @@ public class UAVSocketCilent extends Thread{
 								//	if(droneInfo != null){ //用户在网页录入了无人机信息   验证通过
 
 								IMEILibrayService imeiLibrayService = new IMEILibrayServiceImpl();
+								
 								if(imeiLibrayService.isIMEI(IMEI)){
 
-									LockDroneService lockDroneService = new LockDroneServiceImpl();
+									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 
-									if(!lockDroneService.isDroneIMEI(IMEI)){
+									if(droneInfoService.isDroneLock(IMEI)){
+										oWritter.write("OK:1".getBytes());
+									}else{
 										//没有锁死记录允许解锁
 										oWritter.write("OK:2".getBytes());
-									}else{
-										oWritter.write("OK:1".getBytes());
 									}
 									
 									socketMap.put(IMEI, socket);
@@ -395,10 +396,6 @@ public class UAVSocketCilent extends Thread{
 							//	if(!socketMap.containsValue(socket)){//如果此账号没有登录过
 
 									if(checkCode.equals("8787jjlsdflsdf57584")){//检验校验码是否正确
-
-										/*if(responseData == null){
-											responseData = new ResponseData();
-										}*/
 
 										try {
 											EnterpriseUserService userService = new EnterpriseUserServiceImpl();
@@ -545,6 +542,22 @@ public class UAVSocketCilent extends Thread{
 									
 									DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 									out.write((resultJson.toString()+"$#_").getBytes("utf-8"));
+									
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+							}else if(code.equals("updateDroneLockStatus")){ // 更改无人机锁定状态
+								
+								try {
+									
+									String IMEI = jsonObject.getString("IMEI");
+									int  onLine = jsonObject.getInt("onLine");
+									
+									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
+									
+									droneInfoService.updateUAVOnLineStatus(IMEI, onLine);
 									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block

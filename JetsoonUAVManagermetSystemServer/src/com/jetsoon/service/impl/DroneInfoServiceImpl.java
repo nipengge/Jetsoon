@@ -41,13 +41,36 @@ public class DroneInfoServiceImpl implements DroneInfoService{
     public List<Map<String, Object>> findByCompanyId(String companyId) throws SQLException {
         return droneInfoDao.findByCompanyId(companyId);
     }
+    
 
     /**
      *
      * @param IMEI 唯一标示
      * @param onLine 在线状态
      */
-    public void updateUAVOnLineStatus(String IMEI, String onLine) {
-
+    public void updateUAVOnLineStatus(String IMEI, int onLine) throws SQLException {
+    	droneInfoDao.updateOnLie(IMEI, onLine);
     }
+
+    /**
+    * 此无人机是否锁死
+    * @param IMEI 唯一标示
+    * @return 
+    * @throws SQLException 
+    */
+	public boolean isDroneLock(String IMEI) throws SQLException {
+		// TODO Auto-generated method stub
+		
+		Map<String,Object> map = droneInfoDao.findByIMEI(IMEI);
+		
+		int onLine = (Integer) map.get("onLine");
+		
+		if(onLine == 1){//锁死状态
+			
+			return true;
+		}
+		//正常状态
+		return false;
+	}
+    
 }

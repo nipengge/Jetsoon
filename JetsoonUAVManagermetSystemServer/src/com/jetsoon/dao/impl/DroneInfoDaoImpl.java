@@ -3,7 +3,6 @@ package com.jetsoon.dao.impl;
 import com.jetsoon.dao.DroneInfoDao;
 import com.jetsoon.util.C3P0Util;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.MapHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 
@@ -50,15 +49,16 @@ public class DroneInfoDaoImpl implements DroneInfoDao {
     }
 
     /**
-     * 修改OnLie
-     * @param IMEI 唯一标示
-     * @param onLine 值
+     * 修改锁死状态
+     * @param IMEI 唯一标识
+     * @param onLine 上锁状态
+     * 0标识没有锁死 ， 1标识锁死状态
      */
-
     public void updateOnLie(String IMEI, int onLine) throws SQLException {
+    	
         QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
 
         qr.update("update drone_info set onLine = ? where droneId = ? ",IMEI,onLine);
     }
-
+    
 }

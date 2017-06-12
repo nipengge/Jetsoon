@@ -3,7 +3,6 @@ package com.jetsoon.dao;
 import java.sql.SQLException;
 import java.util.Map;
 
-import com.jetsoon.bean.Enterprise_User;
 
 /**
  * 

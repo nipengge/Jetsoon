@@ -9,9 +9,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import javax.swing.WindowConstants;
-import javax.swing.SwingUtilities;
 
-import sun.applet.Main;
 
 import com.jetsoon.clientconn.UAVSocketCilent;
 import com.jetsoon.serverconn.UAVSocketServer;

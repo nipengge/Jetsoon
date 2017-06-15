@@ -131,8 +131,6 @@ public class UAVSocketCilent extends Thread{
 
 								MAVLinkMessage message = 	packet.unpack();
 
-								System.out.println(message.sysid);
-
 								if(message.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST){
 									//接收到请求航点命令
 
@@ -445,10 +443,12 @@ public class UAVSocketCilent extends Thread{
 							}else if(code.equals("qureyUavList")) {//查询无人机列表
 								try {
 									String companyId = jsonObject.getString("companyId");
+									int role = jsonObject.getInt("role");//权限
+									int currentPage = jsonObject.getInt("currentPage");//当前第几页
 
 									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 
-									List<Map<String,Object>> uavList = droneInfoService.findByCompanyId(companyId);
+									List<Map<String,Object>> uavList = droneInfoService.findByCompanyId(companyId,role,currentPage);
 
 									if(uavList != null){
 
@@ -553,7 +553,7 @@ public class UAVSocketCilent extends Thread{
 								try {
 									
 									String IMEI = jsonObject.getString("IMEI");
-									int  onLine = jsonObject.getInt("onLine");
+									int  onLine = jsonObject.getInt("onLine");//0代表正常,1代表锁死
 									
 									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 									

@@ -37,15 +37,16 @@ public class DroneInfoDaoImpl implements DroneInfoDao {
     /**
      * 根据企业ID查询下属所有无人机信息
      * @companyId 企业ID
+     * @currentPage 当前第几页
      * @return
      * @throws SQLException
      */
     
-    public List<Map<String, Object>> findByCompanyId(String companyId) throws SQLException {
+    public List<Map<String, Object>> findByCompanyId(String companyId,int currentPage) throws SQLException {
 
         QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
 
-        return qr.query("select * from drone_info dinfo where dinfo.droneCompanyId =?",new MapListHandler(),companyId);
+        return qr.query("select * from drone_info dinfo where dinfo.droneCompanyId =? limit "+(currentPage-1)*10+",10",new MapListHandler(),companyId);
     }
 
     /**
@@ -60,5 +61,22 @@ public class DroneInfoDaoImpl implements DroneInfoDao {
 
         qr.update("update drone_info set onLine = ? where droneId = ? ",IMEI,onLine);
     }
+
+	/* (非 Javadoc) 
+	* <p>Title: qureyDronInfo</p> 
+	* <p>Description: 分页查询所有无人机列表</p> 
+	* @param currenPage
+	* @return
+	* @throws SQLException 
+	* @see com.jetsoon.dao.DroneInfoDao#qureyDronInfo(int) 
+	*/
+	public List<Map<String, Object>> qureyDronInfo(int currentPage)
+			throws SQLException {
+		// TODO Auto-generated method stub
+		 QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
+
+	     return qr.query("select * from drone_info dinfo limit "+(currentPage-1)*10+",10",new MapListHandler());
+	}
+    
     
 }

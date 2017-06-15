@@ -23,12 +23,25 @@ public interface DroneInfoDao {
     Map<String,Object> findByIMEI(String IMEI) throws SQLException;
 
     /**
-     * 根据企业信息ID查询下属所有无人机信息
-     * @companyId  企业id
+     * 根据企业ID查询下属所有无人机信息
+     * @companyId  企业ID
+     * @currentPage 当前第几页
      * @return 本公司下属所有无人机信息
      * @throws SQLException
      */
-    List<Map<String,Object>> findByCompanyId(String companyId) throws SQLException;
+    List<Map<String,Object>> findByCompanyId(String companyId,int currentPage) throws SQLException;
+    
+    /**
+     * 
+    * @Title: qureyDronInfo
+    * @Description: TODO(查询所有无人机并分页,默认10条)
+    * @param @param currenPage 当前第几页
+    * @param @return 无人机信息列表
+    * @param @throws SQLException    设定文件
+    * @return List<Map<String,Object>>    返回类型
+    * @throws 异常
+     */
+    List<Map<String, Object>> qureyDronInfo(int currenPage) throws SQLException;
 
     /**
      * 修改OnLie

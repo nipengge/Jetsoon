@@ -34,12 +34,18 @@ public class DroneInfoServiceImpl implements DroneInfoService{
     /**
      * 根据企业ID查询下属飞机信息
      * @param companyId
+     * @param role
      * @return
      * @throws SQLException
      */
     
-    public List<Map<String, Object>> findByCompanyId(String companyId) throws SQLException {
-        return droneInfoDao.findByCompanyId(companyId);
+    public List<Map<String, Object>> findByCompanyId(String companyId,int role,int currentPage) throws SQLException {
+    	
+    	if(role == 0){
+    		return droneInfoDao.qureyDronInfo(currentPage);
+    	}
+    	
+        return droneInfoDao.findByCompanyId(companyId,currentPage);
     }
     
 

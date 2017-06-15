@@ -25,10 +25,12 @@ public interface DroneInfoService {
     /**
      * 根据企业信息ID查询下属所有无人机信息
      * @companyId  企业id
+     * @role 权限等级
+     * @currentPage 当前第几页
      * @return 本公司下属所有无人机信息
      * @throws SQLException
      */
-    List<Map<String,Object>> findByCompanyId(String companyId) throws SQLException;
+    List<Map<String,Object>> findByCompanyId(String companyId,int role,int currentPage) throws SQLException;
 
     /**
      * 修改无人机在线状态

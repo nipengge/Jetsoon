@@ -121,15 +121,13 @@ public class UAVSocketCilent extends Thread{
 							
 							System.out.print(pack[i]+" ");
 							
-							if(len - 1 == i){
-								System.out.println("飞控返回数据");
-							}
-							
 							MAVLinkPacket packet = parser.mavlink_parse_char(pack[i] & 0x00ff);
-							
+					
 							if(packet != null){
-
-								MAVLinkMessage message = 	packet.unpack();
+								
+								System.out.println("飞控返回数据");
+								
+								MAVLinkMessage message = packet.unpack();
 
 								if(message.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST){
 									//接收到请求航点命令

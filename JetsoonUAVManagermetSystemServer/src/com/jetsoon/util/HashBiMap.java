@@ -74,7 +74,7 @@ public class HashBiMap<K, V> {
 	    if(valueContains == true && keyContains == true){
 	    	return true;
 	    }
-		
+	    
 		return false ;
 	}
 	

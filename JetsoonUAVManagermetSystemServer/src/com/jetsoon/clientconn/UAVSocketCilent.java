@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 import com.jetsoon.service.*;
 import com.jetsoon.service.impl.*;
 import com.jetsoon.util.DateJsonValueProcessor;
@@ -49,6 +51,8 @@ import net.sf.json.util.CycleDetectionStrategy;
  * 时间:2017-2-26 下午08:11:25
  */
 public class UAVSocketCilent extends Thread{
+	
+	private Logger logger = Logger.getLogger(UAVSocketCilent.class);
 
 	private static final int MAX_SEQ = 255; //消息最大长度
  
@@ -122,12 +126,12 @@ public class UAVSocketCilent extends Thread{
 							System.out.print(pack[i]+" ");
 							
 							MAVLinkPacket packet = parser.mavlink_parse_char(pack[i] & 0x00ff);
-					
+							
 							if(packet != null){
-								
-								System.out.println("飞控返回数据");
-								
-								MAVLinkMessage message = packet.unpack();
+							
+							System.out.println("飞控返回数据");
+
+								MAVLinkMessage message = 	packet.unpack();
 
 								if(message.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST){
 									//接收到请求航点命令
@@ -135,6 +139,9 @@ public class UAVSocketCilent extends Thread{
 									msg_mission_request requestMsg = (msg_mission_request) message;
 
 									sendUAVMession(ListDataReference.getMission(socketMap.getKey(socket), requestMsg.seq));
+									
+									logger.debug(socketMap.getKey(socket)+":向服务器请求航点信息");
+
 
 								}else if(message.msgid == msg_mission_ack.MAVLINK_MSG_ID_MISSION_ACK){
 									//接收到航点请求完毕命令
@@ -146,10 +153,12 @@ public class UAVSocketCilent extends Thread{
 
 										UavMainFrame.setMessage(socket+":飞机反馈航点请求完毕");
 										System.out.println(socket+":飞机反馈航点请求完毕");
+										logger.debug(socketMap.getKey(socket)+":反馈航点请求完毕");
 
 									}else{
-
-										System.out.println("错误");
+										
+										logger.debug(socketMap.getKey(socket)+":反馈航点请求错误");
+										
 									}
 
 								}else if(message.msgid == msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT){//心跳
@@ -172,12 +181,11 @@ public class UAVSocketCilent extends Thread{
 										//inputHistory();
 									}
 
-									byte[] butff ={-2,0,0,0,0,0,0,0};
+								  byte[] butff ={-2,0,0,0,0,0,0,0};
 
-									sendMessage2G(butff);
+								  sendMessage2G(butff);
 
 								  String uavid = socketMap.getKey(socket);
-								 
 								  
 								  Socket socket =  socketMap.getValue(uavid);
 								  
@@ -295,12 +303,15 @@ public class UAVSocketCilent extends Thread{
 					String from = jsonObject.getString("from");
 
 					if("2G".equals(from)){
+						
 						String command = (String) jsonObject.get("command");
 						if(command.equals("Handshake")){
-
+							
 							try{
 								//2G发来握手消息
 								String IMEI = (String) jsonObject.get("IMEI");
+								
+								logger.debug(IMEI+"：发来握手消息,与服务器建立连接");
 
 								//向数据库验证此IEMI是否已录入
 							/*	DroneInfoService droneInfoService = new DroneInfoServiceImpl();
@@ -316,15 +327,22 @@ public class UAVSocketCilent extends Thread{
 									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 
 									if(droneInfoService.isDroneLock(IMEI)){
+										
 										oWritter.write("OK:1".getBytes());
+										
+										logger.debug(IMEI+"：当前锁死状态不允许解锁！");
 									}else{
+										
 										//没有锁死记录允许解锁
 										oWritter.write("OK:2".getBytes());
+										
+										logger.debug(IMEI+"：当前正常状态允许解锁");
 									}
 									
 									socketMap.put(IMEI, socket);
 
 								}else{
+									logger.debug(IMEI+"：产品库中没有此产品序号！");
 									oWritter.write("Fail:1".getBytes());
 								}
 
@@ -345,6 +363,7 @@ public class UAVSocketCilent extends Thread{
 									SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 									imeiLibrayService.add2GIMEI(IMEI,simpleDateFormat.format(new Date()));
 									if(imeiLibrayService.isIMEI(IMEI)){
+										logger.debug(IMEI+":发来入库命令,并入库成功。");
 										oWritter.write("Type in OK".getBytes());
 									}
 								}
@@ -359,6 +378,7 @@ public class UAVSocketCilent extends Thread{
 						}
 						*/
 					}else{
+						
 						if(jsonObject.has("code")) {//客户端命令
 
 							String code = jsonObject.getString("code");
@@ -418,9 +438,13 @@ public class UAVSocketCilent extends Thread{
 												//层层效验通过 保存与服务器的链接
 
 												socketMap.put(accountName,socket);
+												
+												logger.debug(accountName+":发来登录命令,并登录成功");
 
 											}else{
 												oWritter.write("{'msgId':1,'code':2}$#_".getBytes("utf-8"));//返回此账号不错在或密码错误
+												
+												logger.debug(accountName+":发来登录命令,此账号不错在或密码错误");
 											}
 
 										} catch (SQLException e) {
@@ -430,7 +454,9 @@ public class UAVSocketCilent extends Thread{
 									}else{
 
 										oWritter.write("{'msgId':1,'code':1}$#_".getBytes("utf-8"));//返回效验码不正确
-
+										
+										logger.debug(accountName+":发来登录命令,校验码错误");
+										
 									}
 
 								/*}else{//登陆过
@@ -439,6 +465,7 @@ public class UAVSocketCilent extends Thread{
 								}*/
 
 							}else if(code.equals("qureyUavList")) {//查询无人机列表
+								
 								try {
 									String companyId = jsonObject.getString("companyId");
 									int role = jsonObject.getInt("role");//权限
@@ -447,42 +474,40 @@ public class UAVSocketCilent extends Thread{
 									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 
 									List<Map<String,Object>> uavList = droneInfoService.findByCompanyId(companyId,role,currentPage);
+									
+									/**
+									 * 此断代码解决java.lang.IllegalArgumentException
+									 */
+									JsonConfig jsonConfig = new JsonConfig();
+									jsonConfig.setCycleDetectionStrategy(CycleDetectionStrategy.LENIENT);
+									// resolve  java.lang.IllegalArgumentException java.sql.Date.getHours(Date.java:177)
+									jsonConfig.registerJsonBeanProcessor(java.sql.Date.class, new DateJsonValueProcessor());
+									//resolve  java.sql.SQLException: Positioned Update not supported.
+									//jsonConfig.setExcludes(new String[]{"handler","hibernateLazyInitializer"});
+									JSONArray jsonArray = JSONArray.fromObject(uavList,jsonConfig);
+									JSONObject json = new JSONObject();
+									json.put("msgId", 2);
+									json.put("uavList", jsonArray);
 
-									if(uavList != null){
+									byte[] butff = (json.toString()+"$#_").getBytes("utf-8");
+									
+									oWritter.write(butff);
+									
+									//日志输出
+									StringBuilder stringBuilder = new StringBuilder();
+									stringBuilder.append(socketMap.getKey(socket));
+									stringBuilder.append(":查询无人机列表,权限");
+									stringBuilder.append(role);
+									stringBuilder.append(",当前第");
+									stringBuilder.append(currentPage);
+									stringBuilder.append("页");
+									logger.debug(stringBuilder.toString());
 
-										/**
-										 * 此断代码解决java.lang.IllegalArgumentException
-										 */
-										JsonConfig jsonConfig = new JsonConfig();
-										jsonConfig.setCycleDetectionStrategy(CycleDetectionStrategy.LENIENT);
-										// resolve  java.lang.IllegalArgumentException java.sql.Date.getHours(Date.java:177)
-										jsonConfig.registerJsonBeanProcessor(java.sql.Date.class, new DateJsonValueProcessor());
-										//resolve  java.sql.SQLException: Positioned Update not supported.
-										//jsonConfig.setExcludes(new String[]{"handler","hibernateLazyInitializer"});
-										JSONArray jsonArray = JSONArray.fromObject(uavList,jsonConfig);
-										JSONObject json = new JSONObject();
-										json.put("msgId", 2);
-										json.put("uavList", jsonArray);
-
-										byte[] butff = (json.toString()+"$#_").getBytes("utf-8");
-										System.out.println(butff.length);
-										System.out.println(json.toString());
-										oWritter.write(butff);
-
-									}else{
-										JSONObject result = new JSONObject();
-										result.put("code","NotUavList");
-										oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
-									}
 
 								} catch (SQLException e) {
 									e.printStackTrace();
 								}
-									/*if(socketMap.containsValue(socket)){
-
-									}else{
-
-									}*/
+								
 							}else if(code.equals("findFlightHistoryByIMEI")){ //查询飞机历史轨迹
 								try{
 									String IMEI = (String) jsonObject.get("IMEI");
@@ -492,15 +517,14 @@ public class UAVSocketCilent extends Thread{
 									FlightHistoryService flightHistoryService = new FlightHistoryServiceImpl();
 									List<Map<String,Object>> flightHistory = flightHistoryService.findFlightHistoryInfoByIMEI(IMEI,startDate,endDate);
 
-									if(flightHistory != null && !flightHistory.isEmpty()){
 
-										JSONArray jsonArray = JSONArray.fromObject(flightHistory);
-										JSONObject result = new JSONObject();
-										result.put("msgId", 3);
-										result.put("flightHistory", jsonArray);
+									JSONArray jsonArray = JSONArray.fromObject(flightHistory);
+									JSONObject result = new JSONObject();
+									result.put("msgId", 3);
+									result.put("flightHistory", jsonArray);
 
-										oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
-									}
+									oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
+									logger.debug(IMEI+":查询无人机历史轨迹,开始时间:"+startDate+",结束日期:"+endDate);
 
 								}catch (SQLException e){
 									e.printStackTrace();
@@ -508,6 +532,7 @@ public class UAVSocketCilent extends Thread{
 
 							}else if(code.equals("inputPlantProtectionHistory")){//录入植保历史记录
 								try {
+									
 									String uavName = jsonObject.getString("uavName");
 									String IMEI = jsonObject.getString("IMEI");
 									String startDate = jsonObject.getString("startDate");
@@ -518,6 +543,8 @@ public class UAVSocketCilent extends Thread{
 									PlantProtectionHistoryService plantProtectionHistoryService = new PlantProtectionHistoryServiceImpl();
 									
 									plantProtectionHistoryService.inputPlantProtectionHistory(uavName,IMEI, startDate, endDate, cropperName, sprayingWidth);
+									
+									logger.debug(IMEI+":录入植保历史记录");
 									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block
@@ -541,6 +568,9 @@ public class UAVSocketCilent extends Thread{
 									DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 									out.write((resultJson.toString()+"$#_").getBytes("utf-8"));
 									
+									logger.debug(IMEI+":根据IMEI查询植保历史记录");
+									
+									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -557,6 +587,8 @@ public class UAVSocketCilent extends Thread{
 									
 									droneInfoService.updateUAVOnLineStatus(IMEI, onLine);
 									
+									logger.debug(IMEI+":更改无人机锁定状态"+onLine);
+									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -567,6 +599,8 @@ public class UAVSocketCilent extends Thread{
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:1");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Unlock");
 
 							}else if(code.equals("takeoff1")){// 一键起飞
 
@@ -591,6 +625,8 @@ public class UAVSocketCilent extends Thread{
 								sendMessage2G(uavid, msg);*/
 
 								sendMessage2G(uavid,"CMD:4");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff1");
 
 							}else if(code.equals("Return")){// 返航模式
 
@@ -602,11 +638,17 @@ public class UAVSocketCilent extends Thread{
 								msg.base_mode = 1;*/
 
 								sendMessage2G(uavid, "CMD:9");
-
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Return");
+								
 							}else if(code.equals("lock")){//上锁
+								
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid, "CMD:0");
+								
+
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:lock");
 							}else if(code.equals("arm")){ //一键解锁
 
 								String uavid = jsonObject.getString("uavid");
@@ -631,6 +673,9 @@ public class UAVSocketCilent extends Thread{
 //
 //								sendMessage2G(uavid, msg);
 								sendMessage2G(uavid,"CMD:1");
+								
+
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:arm");
 
 							}else if(code.equals("disArm")){
 
@@ -643,23 +688,35 @@ public class UAVSocketCilent extends Thread{
 								msg.param2 = 21196;*/
 
 								sendMessage2G(uavid, "CMD:3");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:disArm");
 
 							}else if(code.equals("forcedReturn")){//强制返航
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:6");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:forcedReturn");
+								
 							}else if(code.equals("cancelCompulsoryReturn")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:7");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:cancelCompulsoryReturn");
+								
 							}else if(code.equals("bindingModule")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:99");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:bindingModule");
 							}else if(code.equals("takeoff")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:8");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff");
 							}else if(code.equals("automatic")){//切换自动模式并解锁起飞
 
 								String uavid = jsonObject.getString("uavid");
@@ -684,6 +741,8 @@ public class UAVSocketCilent extends Thread{
 								mode.base_mode = 1;*/
 
 								sendMessage2G(uavid, "CMD:5");
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:automatic");
 
 							}else if(code.equals("Routeplanning")){//接收到向指定的无人机发送航线命令
 
@@ -770,6 +829,8 @@ public class UAVSocketCilent extends Thread{
 									}
 
 								}
+								
+								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Routeplanning");
 
 								System.out.println(items.size());
 
@@ -800,6 +861,8 @@ public class UAVSocketCilent extends Thread{
 						System.out.println("未知消息："+msg);
 						
 						UavMainFrame.setMessage("未知消息："+msg);
+						
+						logger.debug("未知消息"+msg);
 					
 					}
 					/**
@@ -841,6 +904,8 @@ public class UAVSocketCilent extends Thread{
 			flight_history.remove(socket);
 			uavSocketServer.removeClient(this);
 			UavMainFrame.setMessage("客户端："+socket+",断开连接");
+			
+			logger.debug(socketMap.getKey(socket)+"与服务器断开连接");
 
 		} 
 
@@ -1206,9 +1271,10 @@ public class UAVSocketCilent extends Thread{
 						jsonObject.put("msgId", 4);
 						System.out.println("向"+accountName+"推送实时信息");
 						oWritter.write((jsonObject.toString()+"$#_").getBytes("utf-8"));
-						
+						logger.debug(accountName+":推送实时信息");
 					}else{
 						System.out.println(accountName+":不在线");
+						logger.debug(accountName+":不在线");
 					}
 					
 				}

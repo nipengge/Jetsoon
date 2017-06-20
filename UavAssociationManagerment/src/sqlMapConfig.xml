@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "mybatis-3-config.dtd" >
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.jetsoon.bean.Enterprise_User" alias="enterpriseUser"/>
+ 		<typeAlias type="com.jetsoon.bean.Company_Information" alias="companyInformation"/>
+		 <typeAlias type="com.jetsoon.bean.Drone_Info" alias="droneInfo"/>
+		<typeAlias type="com.jetsoon.bean.Drone_Driver_Info" alias="droneDriverInfo"/>
+		<typeAlias type="com.jetsoon.bean.Backstage_User" alias="backstageUser"/>
+   </typeAliases>
+	
+	<mappers>
+		<mapper resource="com/jetsoon/bean/enterprise_user.xml"/>
+		<mapper resource="com/jetsoon/bean/company_information.xml"/> 
+		<mapper resource="com/jetsoon/bean/drone_info.xml"/>
+	  	<mapper resource="com/jetsoon/bean/drone_driver_info.xml"/>
+		<mapper resource="com/jetsoon/bean/backstage_user.xml"/>
+	</mappers>
+</configuration>

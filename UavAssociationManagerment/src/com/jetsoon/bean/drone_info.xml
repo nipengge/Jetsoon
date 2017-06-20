@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper SYSTEM "../mybatis-3-mapper.dtd" >
+<mapper namespace="di">
+
+	<resultMap type="droneInfo" id="droneInfo">
+		<result column="diId" property="diId"/>
+		<result column="droneId" property="droneId"/> 
+		<result column="droneBrand" property="droneBrand"/>
+		<result column="droneModel" property="droneModel"/>
+		<result column="droneLoad" property="droneLoad"/>
+		<result column="dateManufacture" property="dateManufacture"/>
+		<result column="productionLot" property="productionLot"/>
+		<result column="useCompanyName" property="useCompanyName"/>
+		<result column="industry" property="industry"/>
+		<result column="purpose" property="purpose"/>
+		<result column="weight" property="weight"/>
+		<result column="lifeTime" property="lifeTime"/>
+		<result column="operationDate" property="operationDate"/>
+		<result column="dronedriverinfoId" property="dronedriverinfoId"/>	
+		<result column="droneCompanyId" property="droneCompanyId"/>
+		<result column="onLine" property="onLine"/>		
+		<association property="companyInformation" resultMap="companyInformation"/>
+		<association property="droneDriverInfo" resultMap="droneDriverInfo"/>
+	</resultMap>
+	
+	<resultMap type="companyInformation" id="companyInformation">
+		<result column="eiId" property="eiId"/>
+		<result column="companyName" property="companyName"/>
+		<result column="companyAddress" property="companyAddress"/>
+		<result column="companytel" property="companytel"/>
+		<result column="subordinateIndustry" property="subordinateIndustry"/>
+	</resultMap>
+	
+	<resultMap type="droneDriverInfo" id="droneDriverInfo">
+		<result column="droneDriverInfoId" property="droneDriverInfoId"/>
+		<result column="driverName" property="driverName"/>
+		<result column="idCard" property="idCard"/>
+		<result column="nativePlace" property="nativePlace"/>
+		<result column="driverType" property="driverType"/>
+		<result column="droneIdCard" property="droneIdCard"/>
+		<result column="trainingSituation" property="trainingSituation"/>
+		<result column="politicalAppearance" property="politicalAppearance"/>
+		<result column="issuingUnit" property="issuingUnit"/>
+		<result column="CompanyId" property="CompanyId"/>
+		<result column="dactyloPath" property="dactyloPath"/>
+		<result column="facePath" property="facePath"/>
+	</resultMap>
+	
+	<!-- 综合查询无人机信息 --><!-- statementType="STATEMENT" 动态列名 开启服务之前会预编译,改为非预编译 -->
+	<select id="QureyCompanyDroneInfo"  resultMap="droneInfo" parameterType="droneInfo"  statementType="STATEMENT">  
+		select * from drone_info dinfo,company_information ci,drone_driver_info ddinfo where dinfo.dronedriverinfoId = ddinfo.droneDriverInfoId and dinfo.droneCompanyId = ci.eiId
+	
+		<if test="droneCompanyId!=0">
+		   and dinfo.droneCompanyId=${droneCompanyId}
+		</if>
+		
+		<if test="unfixedKey != null and unfixedKey!=''">
+			and ${unfixedKey}='${unfixedValue}'
+		</if>
+		<if test="unfixedKey1 != null and unfixedKey1!=''">
+			and ${unfixedKey1}='${unfixedValue1}'
+		</if>
+		
+		<if test="unfixedKey2 != null and unfixedKey2!=''">
+			and ${unfixedKey2}='${unfixedValue2}'
+		</if>
+		
+		<if test="unfixedKey3 != null and unfixedKey3!=''">
+			and ${unfixedKey3}='${unfixedValue3}'
+		</if>
+		  limit ${pagerBean.how},${pagerBean.bars}
+	</select>
+	
+	<!-- 模糊查询无人机信息 -->
+	<select id="likeQueryDroneInfo"  resultMap="droneInfo"  parameterType="droneInfo">
+		 select * from drone_info dinfo,company_information ci,drone_driver_info ddinfo where dinfo.dronedriverinfoId = ddinfo.droneDriverInfoId and dinfo.droneCompanyId = ci.eiId
+		 <if test="companyInformation.companyName != null and companyInformation.companyName!=''">
+		    and ci.companyName like '${companyInformation.companyName}%'
+		 </if>
+		 <if test="droneId!=null and droneId!=''">
+		    and dinfo.droneId =#{droneId}
+		 </if>
+		 limit #{pagerBean.how},#{pagerBean.bars}
+	</select>
+	
+	<!-- 查询本公司所有的驾驶员 -->
+	<select id="QureyCompanyDroneDriver"  resultMap="droneDriverInfo"  parameterType="droneDriverInfo"  >
+		select * from drone_driver_info 
+		<if test="CompanyId!=0">
+			where CompanyId =#{CompanyId}
+		</if>
+		 limit #{pagerBean.how},#{pagerBean.bars}
+	</select>
+	
+	
+	<!-- 添加无人机之前查询驾驶员列表 -->
+	<select id="toAddDrone"  resultMap="droneDriverInfo"  parameterType="droneDriverInfo"  >
+		select * from drone_driver_info 
+		<if test="CompanyId!=0">
+			where CompanyId =#{CompanyId}
+		</if>
+	</select>
+	
+	
+	<!-- 统计无人机数量做分页使用 -->
+	<select  resultType="int" id="countCompanyDroneInfo" parameterType="droneInfo" statementType="STATEMENT">
+		select count(*) from drone_info dinfo,company_information ci,drone_driver_info ddinfo where dinfo.dronedriverinfoId = ddinfo.droneDriverInfoId and dinfo.droneCompanyId = ci.eiId 
+			<if test="droneCompanyId!=0">
+				and dinfo.droneCompanyId=${droneCompanyId}
+			</if>
+			
+			<if test="unfixedKey != null and unfixedKey!=''">
+				and ${unfixedKey}='${unfixedValue}'
+			</if>
+			
+			<if test="companyInformation!=null and companyInformation.companyName != null and companyInformation.companyName!=''">
+			    and ci.companyName like '${companyInformation.companyName}%'
+			 </if> 
+		 <if test="droneId!=null and droneId!=''">
+		    and dinfo.droneId =#{droneId}
+		 </if> 
+	</select>
+	
+	<!-- 统计驾驶员数量 -->
+	<select id="countDroneDriver" parameterType="droneDriverInfo" resultType="int">
+		select count(*) from drone_driver_info 
+		<if test="CompanyId!=0">
+			where CompanyId =#{CompanyId}
+		</if>
+	</select>
+	
+	<!-- 添加驾驶员 -->
+	<insert id="AddDroneDriver" parameterType="droneDriverInfo">
+		insert into drone_driver_info value(null,#{driverName},#{idCard},#{droneIdCard},#{issuingUnit},#{CompanyId})
+	</insert>
+	<!-- 添加无人机信息  -->
+	<insert id="AddDroneInfo" parameterType="droneInfo">
+		insert into drone_info value(null,#{droneId},#{droneBrand},#{droneModel},#{droneLoad},#{dateManufacture},#{productionLot},#{useCompanyName},#{industry},null,null,null,#{operationDate},#{dronedriverinfoId},#{droneCompanyId},0);
+	</insert>
+	<!-- 修改无人机信息之前 -->
+	<select id="toUpdateDroneInfo" parameterType="droneInfo" resultMap="droneInfo">	
+		select * from drone_info dinfo,company_information ci,drone_driver_info ddinfo where dinfo.dronedriverinfoId = ddinfo.droneDriverInfoId and dinfo.droneCompanyId = ci.eiId and dinfo.diId=#{diId}
+	</select>
+	<!-- 修改无人机信息 -->
+	<update id="updateDroneInfo" parameterType="droneInfo">
+		update drone_info set droneId=#{droneId},droneBrand=#{droneBrand},droneModel=#{droneModel},droneLoad=#{droneLoad},dateManufacture=#{dateManufacture},productionLot=#{productionLot},useCompanyName=#{useCompanyName},industry=#{industry} where diId=#{diId}
+	</update>
+	<!-- 修改驾驶员信息之前 -->
+	<select id="toUpdateDroneDriverInfo"  parameterType="droneDriverInfo" resultMap="droneDriverInfo">
+		select * from drone_driver_info where droneDriverInfoId=#{droneDriverInfoId}
+	</select>
+	<!-- 修改驾驶员信息 -->
+	<update id="updateDroneDriverInfo" parameterType="droneDriverInfo">
+		update drone_driver_info  set driverName=#{driverName},idCard=#{idCard},droneIdCard=#{droneIdCard},issuingUnit=#{issuingUnit} where droneDriverInfoId=#{droneDriverInfoId}
+	</update>
+	
+  <!-- 
+  	   对外API接口
+   -->
+   
+  <!-- 录入无人机 -->
+   <!--<insert id="addUav" parameterType="droneInfo">
+   		insert into drone_info value(null,#{droneId},#{droneBrand},#{droneModel},#{droneLoad},#{dateManufacture},#{productionLot},#{useCompanyName},#{industry},#{purpose},#{weight},#{lifeTime},#{operationDate},#{dronedriverinfoId},#{droneCompanyId},#{onLine})
+   </insert>
+   
+   -->
+   <!-- 录入驾驶员 --><!--
+   <insert id="addDriver" parameterType="droneDriverInfo">
+   	   insert into drone_driver_info(null,#{driverName},#{idCard},#{nativePlace},#{driverType},#{droneIdCard},#{trainingSituation},#{politicalAppearance},#{issuingUnit},#{CompanyId},#{dactyloPath},#{facePath})
+   </insert>
+   
+   
+   --><!-- 查询所有无人机信息 --><!--
+   <select id="" parameterType="" resultMap="">
+     
+   </select>
+   
+   --><!-- 查询驾驶员信息 --><!--
+   <select id="" parameterType="" resultMap="">
+   
+   </select> 
+	
+	
+	
+--></mapper>

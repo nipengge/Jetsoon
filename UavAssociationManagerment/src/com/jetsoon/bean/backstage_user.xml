@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "../mybatis-3-mapper.dtd" >
+<mapper namespace="bu">
+	<resultMap type="backstageUser" id="backstageUser">
+		<result column="buId" property="buId"/>
+		<result column="userName" property="userName"/>
+		<result column="userPassword" property="userPassword"/>
+		<result column="bindAddressIp" property="bindAddressIp"/>
+	</resultMap>
+</mapper>

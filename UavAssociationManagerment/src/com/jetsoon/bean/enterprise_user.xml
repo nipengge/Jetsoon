@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "../mybatis-3-mapper.dtd" >
+<mapper namespace="en">
+
+	<resultMap type="enterpriseUser" id="enterpriseUser">
+		<result column="euId" property="euId"/>
+		<result column="accountName" property="accountName"/> 
+		<result column="euPassword" property="euPassword"/>
+		<result column="statu" property="statu"/>
+		<result column="registerDateTime" property="registerDateTime"/>
+		<result column="role" property="role"/>
+		<association property="companyInformation" resultMap="companyInformation"/>
+	</resultMap>
+	
+	<resultMap type="companyInformation" id="companyInformation">
+		<result column="eiId" property="eiId"/>
+		<result column="companyName" property="companyName"/>
+		<result column="companyAddress" property="companyAddress"/>
+		<result column="companytel" property="companytel"/>
+		<result column="subordinateIndustry" property="subordinateIndustry"/>
+	</resultMap>
+	
+	<resultMap type="backstageUser" id="backstageUser">
+		<result column="buId" property="buId"/>
+		<result column="userName" property="userName"/>
+		<result column="userPassword" property="userPassword"/>
+		<result column="bindAddressIp" property="bindAddressIp"/>
+	</resultMap>
+	
+	
+	<!-- 登录验证 -->
+	<select id="LoginCheck"  parameterType="enterpriseUser" resultMap="enterpriseUser">
+		select * from enterprise_user euser,company_information cinfo where euser.enterpriseInformationId = cinfo.eiId and accountName =#{accountName} and euPassword=#{euPassword}
+	</select>
+	
+	 <!--  查询未审核账号 -->
+	<select  id="QueryNotChecked" resultMap="enterpriseUser">
+		select * from enterprise_user eu,company_information ci  where eu.enterpriseInformationId = ci.eiId 
+		<if test="statu==1">
+			and statu =1
+		</if>
+		<if test="statu==2">
+			and statu =2
+		</if>
+		<if test="statu==3">
+			and statu =3
+		</if>
+		 limit #{pagerBean.how},#{pagerBean.bars}
+		 <!-- 报错暂未找到原因
+		<if test="companyInformation.companyName!=null and companyInformation.companyName!=''">
+			and companyName=#{companyInformation.companyName}
+		</if>-->
+		
+	</select>
+	
+	<!-- 统计企业账户数量 -->
+	<select  id="countNotChecked" resultType="int" >
+		select count(*) from enterprise_user eu,company_information ci  where eu.enterpriseInformationId = ci.eiId 
+		<if test="statu==1">
+			and statu =1
+		</if>
+		<if test="statu==2">
+			and statu =2
+		</if>
+		<if test="statu==3">
+			and statu =3
+		</if>
+		<!-- 报错暂未找到原因
+		<if test="companyInformation.companyName!=null and companyInformation.companyName!=''">
+			and companyName=#{companyInformation.companyName}
+		</if> -->
+		</select>
+	
+	
+	<!--  添加公司信息 -->
+	<insert id="AddCompanyInfo"  useGeneratedKeys="true" parameterType="enterpriseUser" keyProperty="companyInformation.eiId" >
+	 insert into company_information value(null,#{companyInformation.companyName},#{companyInformation.companyAddress},#{companyInformation.companytel},#{companyInformation.subordinateIndustry})
+	</insert>
+	
+	<!-- 添加企业账号信息 -->
+	<insert id="AddUser" parameterType="enterpriseUser">
+		insert into  enterprise_user value(null,#{accountName},#{euPassword},#{statu},#{registerDateTime},#{role},#{companyInformation.eiId})
+	</insert>
+	
+	<!-- 启用账号 -->
+	<update id="ThroughAudit" parameterType="int">
+		update enterprise_user set statu=2  where euid=#{int}
+	</update>
+	
+	<!-- 禁用账号 -->
+	<update id="DisableAccount" parameterType="int">
+		update enterprise_user set statu=3 where euid=#{int}
+	</update>
+	
+	<!-- 后台登录 -->
+	<select id="backLogin" parameterType="backstageUser" resultMap="backstageUser">
+			select * from backstage_user where userName=#{userName} and userPassword =#{userPassword}
+	</select>
+	<!-- 修改企业账户之前 -->
+	<select id="toUpdateAccount" resultMap="enterpriseUser">
+		select * from enterprise_user eu,company_information ci  where eu.enterpriseInformationId = ci.eiId  and euId =#{euId}
+	</select>
+	<!-- 修改企业账户信息 -->
+	<update id="updateAccount" parameterType="enterpriseUser">
+		update company_information set companyName=#{companyInformation.companyName},companyAddress=#{companyInformation.companyAddress},companytel=#{companyInformation.companytel},subordinateIndustry=#{companyInformation.subordinateIndustry} where eiId=#{companyInformation.eiId}
+	</update>
+</mapper>

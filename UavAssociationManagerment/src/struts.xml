@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.1//EN"
+	"http://struts.apache.org/dtds/struts-2.1.dtd">
+	<struts>
+		<package name="json" extends="struts-default,json-default">
+		
+			 <!-- 定义一个拦截器 -->  
+	        <interceptors>  
+	            <interceptor name="authority"  
+	                class="interceptot.LoginInterceptor">  
+	            </interceptor>  
+	            <!-- 拦截器栈 -->  
+	            <interceptor-stack name="mydefault">  
+	                <interceptor-ref name="defaultStack" />  
+	                <interceptor-ref name="authority" />  
+	            </interceptor-stack>  
+	        </interceptors>  
+	  
+	        <!-- 定义全局Result -->  
+	        <global-results>  
+	            <!-- 当返回login视图名时，转入/login.jsp页面 -->  
+	            <result name="login">/index.jsp</result>  
+	        </global-results>  		
+			
+			
+				
+			<action name="login" class="com.jetsoon.action.LoginAction">
+				<result name="LoginCheck">main.jsp</result>
+				<result name="Not LoginCheck">index.jsp</result>
+				<result name="RegisteredAccount">RegisteredOk.jsp</result>
+				<result name="Not RegisteredAccount"></result>
+				<result name="backLogin" >main.jsp</result>
+				<result name="Not backLogin" >main/index.jsp</result>
+				<result name="backSignOut">main/index.jsp</result>
+				<result name="singOut">index.jsp</result>
+			</action>
+			
+			<action name="enterprise" class="com.jetsoon.action.EnterpriseUserAction">
+				<result name="queryNotChecked">usermamager.jsp</result>
+				<result name="ThroughAudit" type="redirectAction">enterprise!queryNotChecked?enterpriseUser.pagerBean.newPage=1</result>
+				<result name="Not ThroughAudit" type="redirectAction">enterprise!queryNotChecked?enterpriseUser.pagerBean.newPage=1</result>
+				<result name="DisableAccount" type="redirectAction">enterprise!queryNotChecked?enterpriseUser.pagerBean.newPage=1</result>
+				<result name="toUpdateAccount" >updateaccount.jsp</result>
+				<result name="updateAccount" type="redirectAction">enterprise!queryNotChecked?enterpriseUser.pagerBean.newPage=1</result>
+				<interceptor-ref name="mydefault" />  
+			</action>
+			
+			<action name="drone" class="com.jetsoon.action.DronManagerAction">
+				<result name="AddDroneInfo" type="redirectAction">drone!toAddDrone.action</result>
+				<result name="AddDroneDriver">adddronedriver.jsp</result>
+				<result name="toAddDrone">adddrone.jsp</result>
+				<result name="QureyCompanyDroneInfo">droneList.jsp</result>
+				<result name="QureyCompanyDroneDriver">dronedriverList.jsp</result>
+				<result name="toUpdateDroneInfo">updateDroneInfo.jsp</result>
+				<result name="updateDroneInfo" type="redirect">drone!qureyCompanyDroneInfo.action?droneInfo.pagerBean.newPage=1</result>
+				<result name="toUpdateDroneDriverInfo">updateDroneDriverInfo.jsp</result>
+				<result name="updateDroneDriverInfo" type="redirectAction">drone!qureyCompanyDroneDriver?droneDriverInfo.pagerBean.newPage=1</result>
+				<interceptor-ref name="mydefault" />  
+			</action>
+			<!-- method="write" -->
+			<action name="jsonAction" class="com.jetsoon.action.JsonAction" method="json" >
+				<result name="success" type="json">
+					<param name="root">map</param>
+				</result>
+			</action>
+			
+		</package>
+	</struts>

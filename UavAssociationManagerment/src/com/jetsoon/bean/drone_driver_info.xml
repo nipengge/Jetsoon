@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "../mybatis-3-mapper.dtd" >
+<mapper namespace="ddi">
+	
+	<resultMap type="droneDriverInfo" id="droneDriverInfo">
+		<result column="droneDriverInfoId" property="droneDriverInfoId"/>
+		<result column="driverName" property="driverName"/>
+		<result column="idCard" property="idCard"/>
+		<result column="nativePlace" property="nativePlace"/>
+		<result column="driverType" property="driverType"/>
+		<result column="droneIdCard" property="droneIdCard"/>
+		<result column="trainingSituation" property="trainingSituation"/>
+		<result column="politicalAppearance" property="politicalAppearance"/>
+		<result column="issuingUnit" property="issuingUnit"/>
+		<result column="CompanyId" property="CompanyId"/>
+		<result column="dactyloPath" property="dactyloPath"/>
+		<result column="facePath" property="facePath"/>
+	</resultMap>
+</mapper>

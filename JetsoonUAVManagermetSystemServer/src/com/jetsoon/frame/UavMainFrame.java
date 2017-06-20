@@ -109,6 +109,7 @@ public class UavMainFrame extends javax.swing.JFrame implements ActionListener {
 		// TODO Auto-generated method stub
 		context = msg+"\n";
 		jTextArea1.append(context);
+		jTextArea1.setCaretPosition(jTextArea1.getText().length());
 	}
 	
 	public void actionPerformed(ActionEvent event) {

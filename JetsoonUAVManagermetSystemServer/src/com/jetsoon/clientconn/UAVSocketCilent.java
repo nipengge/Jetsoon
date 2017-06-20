@@ -140,7 +140,7 @@ public class UAVSocketCilent extends Thread{
 
 									sendUAVMession(ListDataReference.getMission(socketMap.getKey(socket), requestMsg.seq));
 									
-									logger.debug(socketMap.getKey(socket)+":向服务器请求航点信息");
+									logger.info(socketMap.getKey(socket)+":向服务器请求航点信息");
 
 
 								}else if(message.msgid == msg_mission_ack.MAVLINK_MSG_ID_MISSION_ACK){
@@ -153,11 +153,11 @@ public class UAVSocketCilent extends Thread{
 
 										UavMainFrame.setMessage(socket+":飞机反馈航点请求完毕");
 										System.out.println(socket+":飞机反馈航点请求完毕");
-										logger.debug(socketMap.getKey(socket)+":反馈航点请求完毕");
+										logger.info(socketMap.getKey(socket)+":反馈航点请求完毕");
 
 									}else{
 										
-										logger.debug(socketMap.getKey(socket)+":反馈航点请求错误");
+										logger.info(socketMap.getKey(socket)+":反馈航点请求错误");
 										
 									}
 
@@ -311,7 +311,7 @@ public class UAVSocketCilent extends Thread{
 								//2G发来握手消息
 								String IMEI = (String) jsonObject.get("IMEI");
 								
-								logger.debug(IMEI+"：发来握手消息,与服务器建立连接");
+								logger.info(IMEI+"：发来握手消息,与服务器建立连接");
 
 								//向数据库验证此IEMI是否已录入
 							/*	DroneInfoService droneInfoService = new DroneInfoServiceImpl();
@@ -330,19 +330,19 @@ public class UAVSocketCilent extends Thread{
 										
 										oWritter.write("OK:1".getBytes());
 										
-										logger.debug(IMEI+"：当前锁死状态不允许解锁！");
+										logger.info(IMEI+"：当前锁死状态不允许解锁！");
 									}else{
 										
 										//没有锁死记录允许解锁
 										oWritter.write("OK:2".getBytes());
 										
-										logger.debug(IMEI+"：当前正常状态允许解锁");
+										logger.info(IMEI+"：当前正常状态允许解锁");
 									}
 									
 									socketMap.put(IMEI, socket);
 
 								}else{
-									logger.debug(IMEI+"：产品库中没有此产品序号！");
+									logger.info(IMEI+"：产品库中没有此产品序号！");
 									oWritter.write("Fail:1".getBytes());
 								}
 
@@ -363,7 +363,7 @@ public class UAVSocketCilent extends Thread{
 									SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 									imeiLibrayService.add2GIMEI(IMEI,simpleDateFormat.format(new Date()));
 									if(imeiLibrayService.isIMEI(IMEI)){
-										logger.debug(IMEI+":发来入库命令,并入库成功。");
+										logger.info(IMEI+":发来入库命令,并入库成功。");
 										oWritter.write("Type in OK".getBytes());
 									}
 								}
@@ -439,12 +439,12 @@ public class UAVSocketCilent extends Thread{
 
 												socketMap.put(accountName,socket);
 												
-												logger.debug(accountName+":发来登录命令,并登录成功");
+												logger.info(accountName+":发来登录命令,并登录成功");
 
 											}else{
 												oWritter.write("{'msgId':1,'code':2}$#_".getBytes("utf-8"));//返回此账号不错在或密码错误
 												
-												logger.debug(accountName+":发来登录命令,此账号不错在或密码错误");
+												logger.info(accountName+":发来登录命令,此账号不错在或密码错误");
 											}
 
 										} catch (SQLException e) {
@@ -455,7 +455,7 @@ public class UAVSocketCilent extends Thread{
 
 										oWritter.write("{'msgId':1,'code':1}$#_".getBytes("utf-8"));//返回效验码不正确
 										
-										logger.debug(accountName+":发来登录命令,校验码错误");
+										logger.info(accountName+":发来登录命令,校验码错误");
 										
 									}
 
@@ -501,7 +501,7 @@ public class UAVSocketCilent extends Thread{
 									stringBuilder.append(",当前第");
 									stringBuilder.append(currentPage);
 									stringBuilder.append("页");
-									logger.debug(stringBuilder.toString());
+									logger.info(stringBuilder.toString());
 
 
 								} catch (SQLException e) {
@@ -524,7 +524,7 @@ public class UAVSocketCilent extends Thread{
 									result.put("flightHistory", jsonArray);
 
 									oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
-									logger.debug(IMEI+":查询无人机历史轨迹,开始时间:"+startDate+",结束日期:"+endDate);
+									logger.info(IMEI+":查询无人机历史轨迹,开始时间:"+startDate+",结束日期:"+endDate);
 
 								}catch (SQLException e){
 									e.printStackTrace();
@@ -544,7 +544,7 @@ public class UAVSocketCilent extends Thread{
 									
 									plantProtectionHistoryService.inputPlantProtectionHistory(uavName,IMEI, startDate, endDate, cropperName, sprayingWidth);
 									
-									logger.debug(IMEI+":录入植保历史记录");
+									logger.info(IMEI+":录入植保历史记录");
 									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block
@@ -568,7 +568,7 @@ public class UAVSocketCilent extends Thread{
 									DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 									out.write((resultJson.toString()+"$#_").getBytes("utf-8"));
 									
-									logger.debug(IMEI+":根据IMEI查询植保历史记录");
+									logger.info(IMEI+":根据IMEI查询植保历史记录");
 									
 									
 								} catch (SQLException e) {
@@ -587,7 +587,7 @@ public class UAVSocketCilent extends Thread{
 									
 									droneInfoService.updateUAVOnLineStatus(IMEI, onLine);
 									
-									logger.debug(IMEI+":更改无人机锁定状态"+onLine);
+									logger.info(IMEI+":更改无人机锁定状态"+onLine);
 									
 								} catch (SQLException e) {
 									// TODO Auto-generated catch block
@@ -600,7 +600,7 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid,"CMD:1");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Unlock");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Unlock");
 
 							}else if(code.equals("takeoff1")){// 一键起飞
 
@@ -626,7 +626,7 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid,"CMD:4");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff1");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff1");
 
 							}else if(code.equals("Return")){// 返航模式
 
@@ -639,7 +639,7 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid, "CMD:9");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Return");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Return");
 								
 							}else if(code.equals("lock")){//上锁
 								
@@ -648,7 +648,7 @@ public class UAVSocketCilent extends Thread{
 								sendMessage2G(uavid, "CMD:0");
 								
 
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:lock");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:lock");
 							}else if(code.equals("arm")){ //一键解锁
 
 								String uavid = jsonObject.getString("uavid");
@@ -675,7 +675,7 @@ public class UAVSocketCilent extends Thread{
 								sendMessage2G(uavid,"CMD:1");
 								
 
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:arm");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:arm");
 
 							}else if(code.equals("disArm")){
 
@@ -689,34 +689,34 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid, "CMD:3");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:disArm");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:disArm");
 
 							}else if(code.equals("forcedReturn")){//强制返航
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:6");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:forcedReturn");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:forcedReturn");
 								
 							}else if(code.equals("cancelCompulsoryReturn")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:7");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:cancelCompulsoryReturn");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:cancelCompulsoryReturn");
 								
 							}else if(code.equals("bindingModule")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:99");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:bindingModule");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:bindingModule");
 							}else if(code.equals("takeoff")){
 								String uavid = jsonObject.getString("uavid");
 
 								sendMessage2G(uavid,"CMD:8");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff");
 							}else if(code.equals("automatic")){//切换自动模式并解锁起飞
 
 								String uavid = jsonObject.getString("uavid");
@@ -742,7 +742,7 @@ public class UAVSocketCilent extends Thread{
 
 								sendMessage2G(uavid, "CMD:5");
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:automatic");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:automatic");
 
 							}else if(code.equals("Routeplanning")){//接收到向指定的无人机发送航线命令
 
@@ -830,7 +830,7 @@ public class UAVSocketCilent extends Thread{
 
 								}
 								
-								logger.debug(socketMap.getKey(socket)+"向"+uavid+"发送命令:Routeplanning");
+								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Routeplanning");
 
 								System.out.println(items.size());
 
@@ -862,7 +862,7 @@ public class UAVSocketCilent extends Thread{
 						
 						UavMainFrame.setMessage("未知消息："+msg);
 						
-						logger.debug("未知消息"+msg);
+						logger.info("未知消息"+msg);
 					
 					}
 					/**
@@ -905,7 +905,7 @@ public class UAVSocketCilent extends Thread{
 			uavSocketServer.removeClient(this);
 			UavMainFrame.setMessage("客户端："+socket+",断开连接");
 			
-			logger.debug(socketMap.getKey(socket)+"与服务器断开连接");
+			logger.info(socketMap.getKey(socket)+"与服务器断开连接");
 
 		} 
 
@@ -1271,10 +1271,10 @@ public class UAVSocketCilent extends Thread{
 						jsonObject.put("msgId", 4);
 						System.out.println("向"+accountName+"推送实时信息");
 						oWritter.write((jsonObject.toString()+"$#_").getBytes("utf-8"));
-						logger.debug(accountName+":推送实时信息");
+						logger.info(accountName+":推送实时信息");
 					}else{
 						System.out.println(accountName+":不在线");
-						logger.debug(accountName+":不在线");
+						logger.info(accountName+":不在线");
 					}
 					
 				}

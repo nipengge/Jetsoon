@@ -436,7 +436,11 @@ public class UAVSocketCilent extends Thread{
 												oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
 
 												//层层效验通过 保存与服务器的链接
-
+												
+												if(socketMap.containsValue(socket)){//如果连接存在 而 Key发生改变
+													socketMap.removeValue(socket);
+												}
+												
 												socketMap.put(accountName,socket);
 												
 												logger.info(accountName+":发来登录命令,并登录成功");

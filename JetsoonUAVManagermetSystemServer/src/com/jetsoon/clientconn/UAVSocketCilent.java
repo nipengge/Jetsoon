@@ -232,6 +232,7 @@ public class UAVSocketCilent extends Thread{
 										double lon = gps_raw.lon;
 
 										float  alt = gps_raw.alt;
+										
 										System.out.println(history);
 																										
 										if(gps_raw.time_usec == 1){					//检查是否是2G定位模块		
@@ -408,7 +409,7 @@ public class UAVSocketCilent extends Thread{
 								String checkCode = jsonObject.getString("checkCode");
 
 								oWritter  =  new DataOutputStream(socket.getOutputStream());
-
+								logger.info(jsonObject.toString());
 							//	if(!socketMap.containsValue(socket)){//如果此账号没有登录过
 
 									if(checkCode.equals("8787jjlsdflsdf57584")){//检验校验码是否正确
@@ -492,7 +493,7 @@ public class UAVSocketCilent extends Thread{
 									JSONObject json = new JSONObject();
 									json.put("msgId", 2);
 									json.put("uavList", jsonArray);
-
+									
 									byte[] butff = (json.toString()+"$#_").getBytes("utf-8");
 									
 									oWritter.write(butff);

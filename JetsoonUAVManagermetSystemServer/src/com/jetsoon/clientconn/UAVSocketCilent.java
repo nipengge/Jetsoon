@@ -438,6 +438,22 @@ public class UAVSocketCilent extends Thread{
 
 												//层层效验通过 保存与服务器的链接
 												
+												if(socketMap.containsKey(accountName)){
+													
+													Socket socket = socketMap.getValue(accountName);
+													
+													if(socket == this.socket){ //检验是否连接更换通知下线
+														
+														logger.info(accountName+":此账号已被其他设备登录");
+														
+														DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());
+														
+														out.write("{'msgId':6,'code':1}$#_".getBytes("utf-8")); //通知下线
+														
+													}
+													
+												}
+												
 												if(socketMap.containsValue(socket)){//如果连接存在 而 Key发生改变
 													socketMap.removeValue(socket);
 												}
@@ -447,6 +463,7 @@ public class UAVSocketCilent extends Thread{
 												logger.info(accountName+":发来登录命令,并登录成功");
 
 											}else{
+												
 												oWritter.write("{'msgId':1,'code':2}$#_".getBytes("utf-8"));//返回此账号不错在或密码错误
 												
 												logger.info(accountName+":发来登录命令,此账号不错在或密码错误");

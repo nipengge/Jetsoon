@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="MavenJetsoonUAVSystem-Web"
+  id="myeclipse.1498189053024"
+  context-root="/MavenJetsoonUAVSystem-Web"
+  j2ee-spec="6.0"
+  archive="MavenJetsoonUAVSystem-Web.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+

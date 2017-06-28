@@ -71,7 +71,7 @@ public class DroneInfoServiceImpl implements DroneInfoService{
 		
 		int onLine = (Integer) map.get("onLine");
 		
-		if(onLine == 1){//ËøËÀ×´Ì¬
+		if(onLine == 101){//ËøËÀ×´Ì¬
 			
 			return true;
 		}

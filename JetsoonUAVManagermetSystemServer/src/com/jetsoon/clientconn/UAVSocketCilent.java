@@ -613,7 +613,7 @@ public class UAVSocketCilent extends Thread{
 								try {
 									
 									String IMEI = jsonObject.getString("IMEI");
-									int  onLine = jsonObject.getInt("onLine");//0代表正常,1代表锁死
+									int  onLine = jsonObject.getInt("onLine");//100代表正常,101代表锁死
 									
 									DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 									
@@ -641,7 +641,7 @@ public class UAVSocketCilent extends Thread{
 										
 										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 										
-										droneInfoService.updateUAVOnLineStatus(uavid, 0);//更改为解除锁死状态
+										droneInfoService.updateUAVOnLineStatus(uavid, 100);//更改为解除锁死状态
 										
 										JSONObject uavState = new JSONObject();
 										
@@ -730,7 +730,7 @@ public class UAVSocketCilent extends Thread{
 
 										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 										
-										droneInfoService.updateUAVOnLineStatus(uavid, 1);//更改为锁死状态
+										droneInfoService.updateUAVOnLineStatus(uavid, 101);//更改为锁死状态
 										
 										
 										JSONObject uavState = new JSONObject();

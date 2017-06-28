@@ -6,18 +6,19 @@ import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.CycleDetectionStrategy;
 
 import org.apache.log4j.Logger;
-
-import com.jetsoon.service.*;
-import com.jetsoon.service.impl.*;
-import com.jetsoon.util.DateJsonValueProcessor;
-import com.jetsoon.util.SectionPackUtil;
-
-import net.sf.json.*;
-
-
 
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
@@ -38,8 +39,19 @@ import com.jetsoon.frame.UavMainFrame;
 import com.jetsoon.reference.ListDataReference;
 import com.jetsoon.reference.ListSeqReference;
 import com.jetsoon.serverconn.UAVSocketServer;
+import com.jetsoon.service.DroneInfoService;
+import com.jetsoon.service.EnterpriseUserService;
+import com.jetsoon.service.FlightHistoryService;
+import com.jetsoon.service.IMEILibrayService;
+import com.jetsoon.service.PlantProtectionHistoryService;
+import com.jetsoon.service.impl.DroneInfoServiceImpl;
+import com.jetsoon.service.impl.EnterpriseUserServiceImpl;
+import com.jetsoon.service.impl.FlightHistoryServiceImpl;
+import com.jetsoon.service.impl.IMEILibrayServiceImpl;
+import com.jetsoon.service.impl.PlantProtectionHistoryServiceImpl;
+import com.jetsoon.util.DateJsonValueProcessor;
 import com.jetsoon.util.HashBiMap;
-import net.sf.json.util.CycleDetectionStrategy;
+import com.jetsoon.util.SectionPackUtil;
 
 
 
@@ -69,8 +81,6 @@ public class UAVSocketCilent extends Thread{
 	private String msg;//上下文　消息
 
 	//private String uavId;//无人机编号
-
-	private List<msg_mission_item> items = new ArrayList<msg_mission_item>();
 
 	private static  HashMap<String, Byte> flagMap = new HashMap<String, Byte>();
 
@@ -616,13 +626,46 @@ public class UAVSocketCilent extends Thread{
 									e.printStackTrace();
 								}
 								
-							}else if(code.equals("Unlock")){//解除锁死
-
-								String uavid = jsonObject.getString("uavid");
-
-								sendMessage2G(uavid,"CMD:1");
+							}else if(code.equals("Unlock")){//解除多个2G锁死
+								try {
+									
+									JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+									
+									JSONArray jsonArray = new JSONArray();
+									
+									for (int i = 0; i < uavIdList.size(); i++) {
+										
+										String uavid = uavIdList.getString(i);
+										
+										boolean	 state = sendMessage2G(uavid,"CMD:1"); //是否发送成功
+										
+										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
+										
+										droneInfoService.updateUAVOnLineStatus(uavid, 0);//更改为解除锁死状态
+										
+										JSONObject uavState = new JSONObject();
+										
+										uavState.put("uavId", uavid);
+										uavState.put("state", state);
+										
+										jsonArray.add(uavState);
+										
+										logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Unlock");
+									}
+									
+									JSONObject result = new JSONObject();
+									
+									result.put("msgId", 21);
+									
+									result.put("position", jsonArray);
+									
+								    oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
+									
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 								
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Unlock");
 
 							}else if(code.equals("takeoff1")){// 一键起飞
 
@@ -652,28 +695,68 @@ public class UAVSocketCilent extends Thread{
 
 							}else if(code.equals("Return")){// 返航模式
 
-								String uavid = jsonObject.getString("uavid");
-
 							/*	msg_set_mode msg = new msg_set_mode();
 
 								msg.custom_mode = 6;
 								msg.base_mode = 1;*/
+								
+								JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+								
+								
+								for (int i = 0; i < uavIdList.size(); i++) {
+									
+									String uavid = uavIdList.getString(i);
+									
+								    sendMessage2G(uavid, "CMD:9"); 
+									
+									logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Return");
+								}
+								
+								
+							}else if(code.equals("lock")){//锁死
+								
+								try {
+									JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+									
+									JSONArray jsonArray = new JSONArray();
+									
+									
+									for (int i = 0; i < uavIdList.size(); i++) {
+										
+										String uavid = uavIdList.getString(i);
+										
+										boolean state =  sendMessage2G(uavid, "CMD:0"); //是否发送成功
+										
 
-								sendMessage2G(uavid, "CMD:9");
-								
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:Return");
-								
-							}else if(code.equals("lock")){//上锁
-								
-								String uavid = jsonObject.getString("uavid");
+										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
+										
+										droneInfoService.updateUAVOnLineStatus(uavid, 1);//更改为锁死状态
+										
+										
+										JSONObject uavState = new JSONObject();
+										
+										uavState.put("uavId", uavid);
+										uavState.put("state", state);
+										
+										jsonArray.add(uavState);
+										
+										logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:lock");
+									}
+									
+									JSONObject result = new JSONObject();
+									
+									result.put("msgId", 23);
+									
+									result.put("position", jsonArray);
+									
+								    oWritter.write((result.toString()+"$#_").getBytes("utf-8"));
+									
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 
-								sendMessage2G(uavid, "CMD:0");
-								
-
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:lock");
 							}else if(code.equals("arm")){ //一键解锁
-
-								String uavid = jsonObject.getString("uavid");
 
 //								/**
 //								 * 切换自稳模式
@@ -694,24 +777,43 @@ public class UAVSocketCilent extends Thread{
 //								msg.param2 = 21196;
 //
 //								sendMessage2G(uavid, msg);
-								sendMessage2G(uavid,"CMD:1");
 								
+								
+								JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+								
+								
+								for (int i = 0; i < uavIdList.size(); i++) {
+									
+									String uavid = uavIdList.getString(i);
+									
+									sendMessage2G(uavid,"CMD:1"); //是否发送成功
+									
+									logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:arm");
 
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:arm");
-
+								}
+								
+							
 							}else if(code.equals("disArm")){
 
-								String uavid = jsonObject.getString("uavid");
 
 								/*msg_command_long msg = new msg_command_long();
 
 								msg.command = 400;
 								msg.param1 = 0;
 								msg.param2 = 21196;*/
-
-								sendMessage2G(uavid, "CMD:3");
 								
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:disArm");
+								JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+								
+								
+								for (int i = 0; i < uavIdList.size(); i++) {
+									
+									String uavid = uavIdList.getString(i);
+									
+									sendMessage2G(uavid, "CMD:3"); //是否发送成功
+									
+									logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:disArm");
+
+								}
 
 							}else if(code.equals("forcedReturn")){//强制返航
 								String uavid = jsonObject.getString("uavid");
@@ -741,8 +843,6 @@ public class UAVSocketCilent extends Thread{
 								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:takeoff");
 							}else if(code.equals("automatic")){//切换自动模式并解锁起飞
 
-								String uavid = jsonObject.getString("uavid");
-
 								/**
 								 * 解锁
 								 *//*
@@ -761,23 +861,28 @@ public class UAVSocketCilent extends Thread{
 
 								mode.custom_mode = 3;
 								mode.base_mode = 1;*/
-
-								sendMessage2G(uavid, "CMD:5");
 								
-								logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:automatic");
-
+								JSONArray uavIdList = jsonObject.getJSONArray("uavIdList");
+								
+								
+								for (int i = 0; i < uavIdList.size(); i++) {
+									
+									String uavid = uavIdList.getString(i);
+									
+									sendMessage2G(uavid, "CMD:5"); //是否发送成功
+									
+									
+									logger.info(socketMap.getKey(socket)+"向"+uavid+"发送命令:automatic");
+								}
+								
+								
 							}else if(code.equals("Routeplanning")){//接收到向指定的无人机发送航线命令
-
+								
 								JSONArray jsonArray = jsonObject.getJSONArray("position");
 
 								String uavid = jsonObject.getString("uavid");
 
-
-								if(items == null){
-
-									items = new ArrayList<msg_mission_item>();
-
-								}
+								List<msg_mission_item> items = new ArrayList<msg_mission_item>();
 
 								int missionSeq = 0;
 
@@ -1012,8 +1117,9 @@ public class UAVSocketCilent extends Thread{
 	 * 向指定的 2G模块发送消息
 	 * @param uavId
 	 * @param msg
+	 * @return 是否发送成功
 	 */
-	public static void sendMessage2G(String uavId,String msg){
+	public static boolean sendMessage2G(String uavId,String msg){
 
 		try {
 
@@ -1026,12 +1132,17 @@ public class UAVSocketCilent extends Thread{
 				oWritter.write(msg.getBytes("utf-8"));
 
 				oWritter.flush();
+				
+				return true;
 			}
+			
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return false;
 
 	}
 

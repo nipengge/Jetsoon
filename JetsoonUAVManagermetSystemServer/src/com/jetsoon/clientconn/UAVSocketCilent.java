@@ -637,11 +637,11 @@ public class UAVSocketCilent extends Thread{
 										
 										String uavid = uavIdList.getString(i);
 										
-										boolean	 state = sendMessage2G(uavid,"CMD:1"); //是否发送成功
+										sendMessage2G(uavid,"CMD:1"); //是否发送成功
 										
 										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 										
-										droneInfoService.updateUAVOnLineStatus(uavid, 100);//更改为解除锁死状态
+										boolean	 state =  droneInfoService.updateUAVOnLineStatus(uavid, 100);//更改为解除锁死状态
 										
 										JSONObject uavState = new JSONObject();
 										
@@ -725,13 +725,11 @@ public class UAVSocketCilent extends Thread{
 										
 										String uavid = uavIdList.getString(i);
 										
-										boolean state =  sendMessage2G(uavid, "CMD:0"); //是否发送成功
-										
+										sendMessage2G(uavid, "CMD:0"); //是否发送成功
 
 										DroneInfoService droneInfoService = new DroneInfoServiceImpl();
 										
-										droneInfoService.updateUAVOnLineStatus(uavid, 101);//更改为锁死状态
-										
+										boolean state =  droneInfoService.updateUAVOnLineStatus(uavid, 101);//更改为锁死状态
 										
 										JSONObject uavState = new JSONObject();
 										

@@ -54,8 +54,18 @@ public class DroneInfoServiceImpl implements DroneInfoService{
      * @param IMEI 唯一标示
      * @param onLine 在线状态
      */
-    public void updateUAVOnLineStatus(String IMEI, int onLine) throws SQLException {
-    	droneInfoDao.updateOnLie(IMEI, onLine);
+    public boolean updateUAVOnLineStatus(String IMEI, int onLine) {
+    	try {
+    		
+			droneInfoDao.updateOnLie(IMEI, onLine);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+    	return true;
     }
 
     /**

@@ -38,7 +38,7 @@ public interface DroneInfoService {
      * @param onLine ÔÚÏß×´Ì¬
      * @throws SQLException 
      */
-    void  updateUAVOnLineStatus(String IMEI,int onLine) throws SQLException;
+    boolean  updateUAVOnLineStatus(String IMEI,int onLine) throws SQLException;
     
     /**
      * 

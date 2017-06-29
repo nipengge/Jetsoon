@@ -59,7 +59,7 @@ public class DroneInfoDaoImpl implements DroneInfoDao {
     	
         QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
 
-        qr.update("update drone_info set onLine = ? where droneId = ? ",IMEI,onLine);
+        qr.update("update drone_info set onLine = ? where droneId = ? ",onLine,IMEI);
     }
 
 	/* (·Ç Javadoc) 

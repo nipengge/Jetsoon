@@ -1,13 +1,20 @@
 package com.jetsoon.bean;
 
+import java.io.Serializable;
+
 /**
  * 无人机驾驶员信息表
  * @author nipengge
  * 作者:吕国朋
  * 时间:2017-2-9 下午04:19:57
  */
-public class Drone_Driver_Info {
+public class Drone_Driver_Info implements Serializable {
 	
+	/**
+	* @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	*/
+	private static final long serialVersionUID = 64585;
+
 	private int droneDriverInfoId;
 	
 	private String driverName;

@@ -1,5 +1,7 @@
 package com.jetsoon.bean;
 
+import java.io.Serializable;
+
 import com.jetsonn.dao.BaseDao;
 
 /**
@@ -9,8 +11,13 @@ import com.jetsonn.dao.BaseDao;
  * 时间:2017-2-14 下午05:24:31
  */
 
-public class PagerBean {
+public class PagerBean implements Serializable{
 	
+	/**
+	* @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	*/
+	private static final long serialVersionUID = 51874;
+
 	private int newPage;//当前第几页
 	
 	private int allPage;//一共多少页

@@ -1,13 +1,20 @@
 package com.jetsoon.bean;
 
+import java.io.Serializable;
+
 /**
  * 企业账户表
  * @author nipengge
  * 作者:吕国朋
  * 时间:2017-2-6 上午11:01:58
  */
-public class Enterprise_User {
+public class Enterprise_User implements Serializable{
 	
+	/**
+	* @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	*/
+	private static final long serialVersionUID = 55154;
+
 	private int euId;
 	
 	private String accountName;

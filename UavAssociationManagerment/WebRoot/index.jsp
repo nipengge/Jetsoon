@@ -85,7 +85,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div>
 						<!-- <input type="submit" value="Log in" /> -->
 						<input type="submit" value="登录" class="btn btn-primary" id="js-btn-login"/>
-						<a href="/UavAssociationManagerment/addenterpriseuser.jsp">注册账号</a>
+						<a href="/addenterpriseuser.jsp">注册账号</a>
 						<!-- <a href="#">Register</a> -->
 					</div>
 				</form><!-- form -->

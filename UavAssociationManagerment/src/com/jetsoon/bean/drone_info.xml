@@ -136,7 +136,7 @@
 	</insert>
 	<!-- 添加无人机信息  -->
 	<insert id="AddDroneInfo" parameterType="droneInfo">
-		insert into drone_info value(null,#{droneId},#{droneBrand},#{droneModel},#{droneLoad},#{dateManufacture},#{productionLot},#{useCompanyName},#{industry},null,null,null,#{operationDate},#{dronedriverinfoId},#{droneCompanyId},0);
+		insert into drone_info value(null,#{droneId},#{droneBrand},#{droneModel},#{droneLoad},#{dateManufacture},#{productionLot},#{useCompanyName},#{industry},null,null,null,#{operationDate},#{dronedriverinfoId},#{droneCompanyId},100);
 	</insert>
 	<!-- 修改无人机信息之前 -->
 	<select id="toUpdateDroneInfo" parameterType="droneInfo" resultMap="droneInfo">	

@@ -32,7 +32,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			function updateValueName(){
 				var select = document.getElementsByName("key");
 				var value = document.getElementsByName("value");
-				value.
 				var name = select.valueOf().toString();
 			}
 		</SCRIPT>

@@ -1,13 +1,20 @@
 package com.jetsoon.bean;
 
+import java.io.Serializable;
+
 /**
  * 后台用户账号表
  * @author nipengge
  * 作者:吕国朋
  * 时间:2017-2-6 上午11:10:52
  */
-public class Backstage_User {
+public class Backstage_User implements Serializable{
 	
+	/**
+	* @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	*/
+	private static final long serialVersionUID = 5411264;
+
 	private int buId;
 	
 	private String userName;

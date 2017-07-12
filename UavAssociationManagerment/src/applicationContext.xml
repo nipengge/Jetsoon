@@ -12,7 +12,7 @@
 		</property>
 		<property name="url" value="jdbc:mysql://localhost:3306/uavassociationmanagerment?autoReconnect=true"></property>
 		<property name="username" value="root"></property>
-		<property name="password" value="Public168"></property>
+		<property name="password" value="root"></property>
 	</bean>
 	
 	<bean id="sqlSessionFactory"

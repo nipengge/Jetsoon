@@ -1,9 +1,12 @@
 package com.jetsoon.action;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.struts2.ServletActionContext;
@@ -11,6 +14,7 @@ import org.apache.struts2.ServletActionContext;
 import com.jetsonn.dao.BaseDao;
 import com.jetsoon.bean.Backstage_User;
 import com.jetsoon.bean.Enterprise_User;
+import com.opensymphony.xwork2.Action;
 
 public class LoginAction {
 	
@@ -46,6 +50,49 @@ public class LoginAction {
 		}
 		
 		return "Not LoginCheck";
+	}
+	
+	/**
+	 * 企业登录验证  ajax登录
+	 * @param enterpriseUser
+	 * @return
+	 */
+	public void ajaxLoginCheck(){
+		
+		HttpSession session = ServletActionContext.getRequest().getSession();
+		
+		Enterprise_User user = (Enterprise_User) baseDao.LoginCheck("LoginCheck",enterpriseUser);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		
+		PrintWriter writer = null;
+		
+		try {
+			writer = response.getWriter();;
+			if(user !=null){
+				if(user.getStatu() == 1){//账户未审核
+					writer.print("Account not audited");
+				}else if(user.getStatu() == 2){//账户正常使用
+					session.setAttribute("user", user);
+					writer.print(Action.SUCCESS);
+				}else if(user.getStatu() == 3){//账户被禁用
+					writer.print("Account is disabled");
+				}
+			}else {
+				writer.print("Not LoginCheck");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try{
+				
+				writer.flush();
+				writer.close();
+				
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	

@@ -99,12 +99,17 @@
                                  <div class="box-header">
                                     <!-- <i class="fa fa-edit"></i> -->
                                     <h3 class="box-title">地址下载</h3>
-                                    <button class="btn btn-danger btn-lg" onClick="">点击此处下载APK</button>
+                                    <button class="btn btn-danger btn-lg" onClick="downloadApk();">点击此处下载APK</button>
                                 </div>
                                 
                             </div>
                         </div>
             </div>
+            <script type="text/javascript">
+             function downloadApk(){
+             	window.parent.location.href = "download?fileName=jetsoonManager1.0.apk";
+             }
+            </script>
     
   </section>
     

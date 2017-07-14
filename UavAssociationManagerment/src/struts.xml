@@ -33,7 +33,7 @@
 				<result name="backLogin" >main.jsp</result>
 				<result name="Not backLogin" >main/index.jsp</result>
 				<result name="backSignOut">main/index.jsp</result>
-				<result name="singOut">login.html</result>
+				<result name="singOut">/index.html</result>
 			</action>
 			
 			<action name="enterprise" class="com.jetsoon.action.EnterpriseUserAction">

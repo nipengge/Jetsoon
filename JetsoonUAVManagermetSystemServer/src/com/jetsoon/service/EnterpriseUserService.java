@@ -1,6 +1,7 @@
 package com.jetsoon.service;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,21 +17,30 @@ import java.util.Map;
 public interface EnterpriseUserService {
 	
 	/**
-	 * 验证企业账户
+	 * 验证企业账户 所有账户
 	 * @param username 账号
 	 * @param passwrod 密码
 	 * @return
 	 * @throws SQLException 
 	 */
-	Map<String,Object> LoginCheck(String username, String passwrod) throws SQLException;
+	Map<String,Object> LoginCheck(String username, String password) throws SQLException;
 		
 	
 	/**
-	 * 根据IMEI
+	 * 根据IMEI查询所属账户信息
 	 * @param IMEI
 	 * @return
 	 * @throws SQLException
 	 */
 	Map<String,Object> findUserNameByIMEI(String IMEI) throws SQLException;
- 
+	
+	/**
+	 * 根据IMEI查询所属所有账户信息
+	 * @param IMEI 唯一识别号
+	 * @return 所有账户信息
+	 * @throws SQLException
+	 */
+	List<Map<String,Object>> findAllAccountByIMEI(String IMEI) throws SQLException;
+
+	
 }

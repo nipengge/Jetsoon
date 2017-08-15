@@ -1,3 +1,35 @@
-#Wed Mar 22 11:04:13 CST 2017
+#Tue Aug 15 17:26:40 CST 2017
 eclipse.preferences.version=1
 encoding//src/com/MAVLink/Messages/MAVLinkStats.java=UTF-8
+encoding//src/com/jetsoon/bean/Company_Information.java=GBK
+encoding//src/com/jetsoon/bean/Enterprise_User.java=gbk
+encoding//src/com/jetsoon/clientconn/UAVSocketCilent.java=GBK
+encoding//src/com/jetsoon/config/CommandConfig.java=gbk
+encoding//src/com/jetsoon/config/ServerConfig.java=gbk
+encoding//src/com/jetsoon/dao/DroneInfoDao.java=gbk
+encoding//src/com/jetsoon/dao/EnterpriseUserDao.java=gbk
+encoding//src/com/jetsoon/dao/FlightHistoryDao.java=gbk
+encoding//src/com/jetsoon/dao/IMEILibrayDao.java=gbk
+encoding//src/com/jetsoon/dao/LockDroneDao.java=gbk
+encoding//src/com/jetsoon/dao/PlantProtectionHistoryDao.java=gbk
+encoding//src/com/jetsoon/dao/impl/DroneInfoDaoImpl.java=gbk
+encoding//src/com/jetsoon/dao/impl/EnterpriseUserDaoImpl.java=gbk
+encoding//src/com/jetsoon/dao/impl/FlightHistoryDaoImpl.java=gbk
+encoding//src/com/jetsoon/dao/impl/IMEILibrayDaoImpl.java=gbk
+encoding//src/com/jetsoon/dao/impl/LockDroneDaoImpl.java=gbk
+encoding//src/com/jetsoon/dao/impl/PlantProtectionHistoryDaoImpl.java=gbk
+encoding//src/com/jetsoon/frame/UavMain.java=gbk
+encoding//src/com/jetsoon/frame/UavMainFrame.java=gbk
+encoding//src/com/jetsoon/reference/ListDataReference.java=gbk
+encoding//src/com/jetsoon/reference/ListSeqReference.java=gbk
+encoding//src/com/jetsoon/serverconn/UAVSocketServer.java=gbk
+encoding//src/com/jetsoon/service/DroneInfoService.java=gbk
+encoding//src/com/jetsoon/service/EnterpriseUserService.java=GBK
+encoding//src/com/jetsoon/service/FlightHistoryService.java=GBK
+encoding//src/com/jetsoon/service/IMEILibrayService.java=GBK
+encoding//src/com/jetsoon/service/PlantProtectionHistoryService.java=GBK
+encoding//src/com/jetsoon/service/impl/DroneInfoServiceImpl.java=gbk
+encoding//src/com/jetsoon/service/impl/EnterpriseUserServiceImpl.java=GBK
+encoding//src/com/jetsoon/util/C3P0Util.java=GBK
+encoding//src/com/jetsoon/util/SectionPackUtil.java=GBK
+encoding/<project>=GBK

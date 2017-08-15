@@ -1384,31 +1384,36 @@ public class UAVSocketCilent extends Thread{
 				String IMEI = socketMap.getKey(socket);
 				
 				EnterpriseUserService enterpriseUserService = new EnterpriseUserServiceImpl();
-				Map<String,Object> map = enterpriseUserService.findUserNameByIMEI(IMEI);
+				List<Map<String, Object>> accountALL = enterpriseUserService.findAllAccountByIMEI(IMEI);
 				
 				System.out.println(IMEI);
 				
-				if(map != null && !map.isEmpty() ){
+				for (int i = 0; i < accountALL.size(); i++) {
 					
-					String accountName = map.get("accountName").toString();
-				
+					Map<String, Object> map = accountALL.get(i);
 					
-					if(socketMap.containsKey(accountName)){
+					if(map != null && !map.isEmpty() ){
 						
-						Socket socket = socketMap.getValue(accountName);
-						DataOutputStream  oWritter = new DataOutputStream(socket.getOutputStream());
-						JSONObject jsonObject = new JSONObject();
-						jsonObject.putAll(historyMap);
-						jsonObject.put("msgId", 4);
-						System.out.println("向"+accountName+"推送实时信息");
-						oWritter.write((jsonObject.toString()+"$#_").getBytes("utf-8"));
-						logger.info(accountName+":推送实时信息");
-					}else{
-						System.out.println(accountName+":不在线");
-						logger.info(accountName+":不在线");
-					}
+						String accountName = map.get("userName").toString();
 					
+						if(socketMap.containsKey(accountName)){
+							
+							Socket socket = socketMap.getValue(accountName);
+							DataOutputStream  oWritter = new DataOutputStream(socket.getOutputStream());
+							JSONObject jsonObject = new JSONObject();
+							jsonObject.putAll(historyMap);
+							jsonObject.put("msgId", 4);
+							System.out.println("向"+accountName+"推送实时信息");
+							oWritter.write((jsonObject.toString()+"$#_").getBytes("utf-8"));
+							logger.info(accountName+":推送实时信息");
+						}else{
+							System.out.println(accountName+":不在线");
+							logger.info(accountName+":不在线");
+						}
+						
+					}
 				}
+			
 				
 			}
 

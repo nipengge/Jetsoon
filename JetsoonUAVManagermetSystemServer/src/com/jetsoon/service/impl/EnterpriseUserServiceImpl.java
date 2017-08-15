@@ -2,6 +2,9 @@ package com.jetsoon.service.impl;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -11,20 +14,28 @@ import com.jetsoon.service.EnterpriseUserService;
 
 /**
  * 
- * <p>Title:ÆóÒµÕËºÅ±í·şÎñÀà</p>
- * <p>Description:²Ù×÷ÆóÒµÕË»§</p>
+ * <p>Title:ï¿½ï¿½Òµï¿½ËºÅ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</p>
+ * <p>Description:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½Ë»ï¿½</p>
  * <p>Company:www.jetsoon.cn</p>
  * @author nipengge
- * @date:2017-4-11 ÏÂÎç03:28:22
+ * @date:2017-4-11 ï¿½ï¿½ï¿½ï¿½03:28:22
  * @version 1.0
  */
 public  class EnterpriseUserServiceImpl implements EnterpriseUserService {
 	
 	EnterpriseUserDao enterpriseUserDao = new EnterpriseUserDaoImpl();
 	
-	public Map<String, Object> LoginCheck(String username, String passwrod) throws SQLException {
+	public Map<String, Object> LoginCheck(String userName, String password) throws SQLException {
 		// TODO Auto-generated method stub
-			return enterpriseUserDao.LoginCheck(username, passwrod);
+		Map<String, Object> parentAccount =  enterpriseUserDao.LoginCheck(userName, password);
+		
+		if(parentAccount == null){
+			
+			return enterpriseUserDao.subAccountLogin(userName, password);
+		}
+		
+		
+		return parentAccount;
 	}
 
 	public Map<String, Object> findUserNameByIMEI(String IMEI)
@@ -32,5 +43,29 @@ public  class EnterpriseUserServiceImpl implements EnterpriseUserService {
 		// TODO Auto-generated method stub
 		
 		return enterpriseUserDao.findUserNameByIMEI(IMEI);
+	}
+	
+	/**
+	 * æ ¹æ®IMEIæŸ¥è¯¢æ‰€æœ‰è´¦æˆ·ä¿¡æ¯åŒ…æ‹¬ çˆ¶è´¦æˆ·å’Œ å­è´¦æˆ·
+	 */
+	public List<Map<String, Object>> findAllAccountByIMEI(String IMEI)
+			throws SQLException {
+		// TODO Auto-generated method stub
+		
+		List<Map<String, Object>> subAccounts = enterpriseUserDao.findSubAccountByIMEI(IMEI);
+		Map<String, Object> parentAccount =  enterpriseUserDao.findUserNameByIMEI(IMEI);
+		
+		if(subAccounts == null){
+			subAccounts = new ArrayList<Map<String,Object>>();
+		}
+		
+		if(parentAccount != null){
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("userName", parentAccount.get("accountName"));
+			subAccounts.add(map);
+		}
+		
+		
+		return subAccounts;
 	}
 }

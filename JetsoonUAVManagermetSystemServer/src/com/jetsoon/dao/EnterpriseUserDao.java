@@ -1,6 +1,7 @@
 package com.jetsoon.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -22,8 +23,10 @@ public interface EnterpriseUserDao {
 	 * @return
 	 * @throws SQLException 
 	 */
-	Map<String,Object> LoginCheck(String username, String passwrod) throws SQLException;
+	Map<String,Object> LoginCheck(String username, String password) throws SQLException;
 	
+	
+	Map<String,Object> subAccountLogin(String userName,String password) throws SQLException;
 	
 	/**
 	 * 根据IMEI查询所属企业的帐户信息
@@ -32,6 +35,14 @@ public interface EnterpriseUserDao {
 	 * @throws SQLException
 	 */
 	Map<String,Object> findUserNameByIMEI(String IMEI) throws SQLException;
+	
+	/**
+	 * 根据IMEI查询所有账户名称
+	 * @param IMEI
+	 * @return
+	 * @throws SQLException
+	 */
+	List<Map<String, Object>> findSubAccountByIMEI(String IMEI) throws SQLException;
 
 
 }

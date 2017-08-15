@@ -41,11 +41,16 @@ public class DroneInfoServiceImpl implements DroneInfoService{
     
     public List<Map<String, Object>> findByCompanyId(String companyId,int role,int currentPage) throws SQLException {
     	
-    	if(role == 0){
-    		return droneInfoDao.qureyDronInfo(currentPage);
-    	}
-    	
-        return droneInfoDao.findByCompanyId(companyId,currentPage);
+    	if(role == 0){//管理员
+			return droneInfoDao.qureyDronInfo(currentPage);
+    	}/*else if(role == 1){//企业账户
+    		
+    	}else if(role == 2){//企业子账户
+    		
+    	}*/
+    
+		return droneInfoDao.findByCompanyId(companyId,currentPage);
+			
     }
     
 

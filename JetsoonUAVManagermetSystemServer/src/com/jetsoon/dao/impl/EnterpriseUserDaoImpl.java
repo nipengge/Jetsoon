@@ -1,6 +1,7 @@
 package com.jetsoon.dao.impl;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
@@ -8,6 +9,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import com.jetsoon.dao.EnterpriseUserDao;
 import com.jetsoon.util.C3P0Util;
 import org.apache.commons.dbutils.handlers.MapHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 
 /**
  * 
@@ -20,7 +22,7 @@ import org.apache.commons.dbutils.handlers.MapHandler;
  */
 public class EnterpriseUserDaoImpl implements EnterpriseUserDao  {
 
-	public Map<String, Object> LoginCheck(String username, String passwrod)
+	public Map<String, Object> LoginCheck(String username, String password)
 			throws SQLException {
 		// TODO Auto-generated method stub
 		
@@ -29,7 +31,7 @@ public class EnterpriseUserDaoImpl implements EnterpriseUserDao  {
 			return qr.query
 					("select * from enterprise_user us, company_information c  where us.enterpriseInformationId " +
 									"= c.eiId and accountName =? and euPassword =?",
-						new MapHandler(),username,passwrod);
+						new MapHandler(),username,password);
 	}
 
 	public Map<String, Object> findUserNameByIMEI(String IMEI)
@@ -41,6 +43,25 @@ public class EnterpriseUserDaoImpl implements EnterpriseUserDao  {
 		return qr.query("select  accountName  from drone_info dinfo, company_information ci,enterprise_user eu  where dinfo.droneId =? and " +
 				"ci.eiId = dinfo.droneCompanyId and eu.enterpriseInformationId = ci.eiId", new MapHandler(),IMEI);
 	}
+
+	public List<Map<String, Object>> findSubAccountByIMEI(String IMEI)
+			throws SQLException {
+		// TODO Auto-generated method stub
+		QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
+		
+		return qr.query("select userName  from sub_account sub,enterprise_user u,drone_info d where parentId = euId and droneId = ?",new MapListHandler(),IMEI);
+	}
+
+	public Map<String, Object> subAccountLogin(String userName, String password)
+			throws SQLException {
+		// TODO Auto-generated method stub
+		QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
+		
+		return qr.query("select euid,userName as'accountName',password as 'euPassword',statu,registerDateTime,role,enterpriseInformationId,c.* " +
+				"from sub_account sub,enterprise_user e,company_information c " +
+				"where  eiId = enterpriseInformationId and euId = parentId and userName=? and password = ?", new MapHandler(),userName,password);
+	}
+
 	
 	
 	

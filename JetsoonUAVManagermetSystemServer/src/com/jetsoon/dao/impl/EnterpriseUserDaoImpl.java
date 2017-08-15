@@ -49,7 +49,8 @@ public class EnterpriseUserDaoImpl implements EnterpriseUserDao  {
 		// TODO Auto-generated method stub
 		QueryRunner qr = new QueryRunner(C3P0Util.getDataSource());
 		
-		return qr.query("select userName  from sub_account sub,enterprise_user u,drone_info d where parentId = euId and droneId = ?",new MapListHandler(),IMEI);
+		return qr.query("select userName  from sub_account sub,enterprise_user u,drone_info d,company_information c " +
+				"where droneId = ? and droneCompanyId = eiId and parentId=euid and eiid = enterpriseInformationId",new MapListHandler(),IMEI);
 	}
 
 	public Map<String, Object> subAccountLogin(String userName, String password)
